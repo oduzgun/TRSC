@@ -1,0 +1,48 @@
+---
+title: "Nonunique Donor Weights in TRSC"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Nonunique Donor Weights in TRSC}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+A central TRSC design rule is that **predictive relationships are primary and
+raw donor coordinates are secondary**. Redundant donors can make raw weights
+nonunique even when the predictive relationship is unchanged.
+
+```{r setup-geometry}
+library(TRSC)
+
+states <- cbind(
+  A = c(-2, -1, 0, 1, 2, 3),
+  B = c(3, 1, -1, 2, 4, 0),
+  A_copy = c(-2, -1, 0, 1, 2, 3)
+)
+geometry <- trsc_geometry(states)
+
+left <- c(A = 0.8, B = 0.2, A_copy = 0)
+right <- c(A = 0, B = 0.2, A_copy = 0.8)
+
+trsc_profile_distance(geometry, left, right)
+```
+
+Both vectors are valid simplex representations. They allocate mass differently
+between duplicated donors, yet represent the same prediction function at the
+supplied geometry.
+
+## Consequence for fitted models
+
+When `trsc_fit()` encounters a nonunique raw-coordinate solution, the optimizer
+may return one numerical lift. The `weights()` method deliberately labels that
+matrix as solver-selected coordinates. It should not be interpreted as a
+structurally identified donor-share path unless additional identification
+arguments establish that interpretation.
+
+The package therefore avoids adding an identity ridge merely to manufacture
+unique raw weights: such a coordinate penalty would alter the
+representation-invariant objective.
