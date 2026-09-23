@@ -95,6 +95,9 @@ trsc_sim_scenario <- function(
   reference_states <- .trsc_sim_draw_gaussian(reference_size, Sigma_reference)
   colnames(reference_states) <- donor_names
 
+  heldout_states <- .trsc_sim_draw_gaussian(reference_size, Sigma_reference)
+  colnames(heldout_states) <- donor_names
+
   donor_states <- .trsc_sim_draw_gaussian(T, Sigma_reference)
   colnames(donor_states) <- donor_names
 
@@ -110,10 +113,14 @@ trsc_sim_scenario <- function(
   if (scenario == "reference_mismatch") {
     plan_index <- .trsc_sim_default_plan_indices(T)
     # Calibration/reference segment follows P. Fitting and validation donor
-    # states are deliberately shifted/scaled to diagnose support mismatch.
+    # states are deliberately shifted/scaled. Independent held-out states
+    # follow the same shifted law Q so evaluation can distinguish reference-P
+    # profile loss from deployment/support-shift prediction loss.
     shifted <- c(plan_index$fitting, plan_index$validation, plan_index$target)
     donor_states[shifted, ] <- 1.25 * donor_states[shifted, , drop = FALSE]
     donor_states[shifted, 1] <- donor_states[shifted, 1] + 1.5
+    heldout_states <- 1.25 * heldout_states
+    heldout_states[, 1] <- heldout_states[, 1] + 1.5
   }
 
   alpha <- .trsc_sim_path(T, path_type)
@@ -128,6 +135,8 @@ trsc_sim_scenario <- function(
     donor_states <- cbind(donor_states, D_duplicate = donor_states[, 1])
     reference_states <- cbind(reference_states,
                               D_duplicate = reference_states[, 1])
+    heldout_states <- cbind(heldout_states,
+                            D_duplicate = heldout_states[, 1])
     W <- rbind(W, D_duplicate = rep(0, T))
     donor_names <- rownames(W)
     representation_identified <- FALSE
@@ -137,6 +146,8 @@ trsc_sim_scenario <- function(
     donor_states[, J] <- donor_states[, 1] +
       stats::rnorm(T, sd = 0.02)
     reference_states[, J] <- reference_states[, 1] +
+      stats::rnorm(reference_size, sd = 0.02)
+    heldout_states[, J] <- heldout_states[, 1] +
       stats::rnorm(reference_size, sd = 0.02)
   }
 
@@ -157,6 +168,7 @@ trsc_sim_scenario <- function(
 
   plan_index <- .trsc_sim_default_plan_indices(T)
   Gamma_reference <- crossprod(reference_states) / nrow(reference_states)
+  Gamma_heldout <- crossprod(heldout_states) / nrow(heldout_states)
 
   structure(
     list(
@@ -171,7 +183,9 @@ trsc_sim_scenario <- function(
       target_outcome = target,
       true_weights = W,
       reference_states = reference_states,
+      heldout_states = heldout_states,
       Gamma_reference = Gamma_reference,
+      Gamma_heldout = Gamma_heldout,
       plan_index = plan_index,
       representation_identified = representation_identified,
       path_type = path_type,
@@ -182,7 +196,7 @@ trsc_sim_scenario <- function(
         exact_duplication = "Raw donor representation is intentionally nonunique.",
         near_redundancy = "Last donor is a noisy near-copy of D1.",
         weak_excitation = "Fitting donor states are nearly collinear while the reference law remains full-dimensional.",
-        reference_mismatch = "Calibration reference law differs from later fitting/validation donor-state support.",
+        reference_mismatch = "Calibration reference law P differs from later fitting/validation and held-out deployment law Q.",
         "Baseline smooth design."
       )
     ),
