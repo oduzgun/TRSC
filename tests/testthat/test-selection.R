@@ -133,3 +133,26 @@ test_that("selection requires the last untreated date as the theorem-aligned tar
     "must equal the last declared pre-treatment date"
   )
 })
+
+
+test_that("selection requires all candidates to share the same frozen fitting block", {
+  fixture <- make_selection_fixture()
+  fit_short <- fixture$fit
+  fit_long <- trsc_fit(
+    fixture$prepared, fixture$geometry,
+    kappa = 0, q = 1, periods = 1:5
+  )
+  candidates <- list(
+    short = trsc_readout(fit_short, 1),
+    long = trsc_readout(fit_long, 1)
+  )
+
+  expect_error(
+    trsc_select(
+      fixture$prepared,
+      candidates,
+      validation_periods = 6:9
+    ),
+    "same fitting block and cutoff"
+  )
+})
