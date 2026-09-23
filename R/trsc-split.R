@@ -62,12 +62,9 @@
 #' splits$folds[[1]]$validation_period
 #' splits$diagnostics
 #'
-#' @note Revised version-2 preparation compatibility remains unexecuted in R
-#'   here; the split output remains version 1. Earlier input-contract evidence:
-#'   a user-supplied R console transcript
-#'   dated September 15, 2026 shows the split checks passing, including the
-#'   eight-date example. The R version and sourced-file revisions were not
-#'   supplied; an independent local rerun remains pending.
+#' @note The split object remains schema version 1 while accepting
+#'   preparation schema version 2. Downstream preprocessing and calibration
+#'   must respect each fold's training cutoff.
 #' @export
 trsc_split <- function(prepared, initial, horizon, step = 1) {
   # Check the object contract without reading or transforming panel values.

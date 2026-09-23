@@ -86,12 +86,9 @@
 #' prepared$blocks$X0[[1]]
 #' prepared$diagnostics
 #'
-#' @note Version-2 preparation integrates raw blocks using base R only.
-#'   Its revised fixtures and example have not been executed in R here.
-#'   Earlier reports concern version 1: a user-supplied R console
-#'   transcript dated September 15, 2026 reports the raw-preparation checks
-#'   passing. The R version and sourced-file revision were not supplied;
-#'   independent local execution and the separate example remain pending.
+#' @note Preparation schema version 2 integrates raw contemporaneous blocks.
+#'   Scaling, geometry construction, fitting and causal identification remain
+#'   separate downstream responsibilities.
 #' @export
 trsc_data <- function(data, unit, time, outcome, treated, donors,
                            intervention_time, pre_period, predictors,
