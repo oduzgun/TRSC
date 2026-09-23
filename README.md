@@ -115,6 +115,17 @@ For a dependent panel, the software can calculate
 
 or the explicit exponential-envelope spacing rule supplied by the paper. These calculations are conditional on user-supplied mixing assumptions; they are not empirical certification of beta-mixing.
 
+## Guides
+
+The private development package includes three executable vignettes:
+
+- `trsc-introduction`: the full calibration → fit → freeze → validate pre-treatment workflow;
+- `predictive-geometry`: singular uncentered prediction geometry and empirical quotient diagnostics;
+- `nonunique-weights`: why different simplex donor coordinates can represent the same predictive relationship.
+
+An additional executable script is stored at
+`inst/examples/pre-treatment-workflow.R`.
+
 ## Representation invariance
 
 For two donor representations (w) and (v), zero predictive distance means they are equivalent at the geometry's fitted resolution. Adding or duplicating a predictively redundant donor may change a numerical weight vector while leaving the predictive profile unchanged.

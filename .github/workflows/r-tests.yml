@@ -43,8 +43,14 @@ jobs:
       - name: Run package tests
         run: Rscript --vanilla -e 'testthat::test_local(".", reporter = "summary")'
 
-      - name: Build package
+      - name: Build package and vignettes
         run: R CMD build .
+
+      - name: Install built package
+        run: R CMD INSTALL TRSC_*.tar.gz
+
+      - name: Run executable pre-treatment example
+        run: Rscript --vanilla inst/examples/pre-treatment-workflow.R
 
       - name: Check package
         run: R CMD check --no-manual TRSC_*.tar.gz

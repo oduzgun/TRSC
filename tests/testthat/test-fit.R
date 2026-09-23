@@ -201,3 +201,68 @@ test_that("reported TRSC objective equals the direct Gamma-weighted objective", 
                  tolerance = 1e-7)
   }
 })
+
+
+test_that("roughness decreases and residual loss increases with kappa", {
+  periods <- 1:8
+  donor_a <- rep(0, length(periods))
+  donor_b <- rep(1, length(periods))
+  target <- c(0.10, 0.90, 0.15, 0.85, 0.20, 0.80, 0.25, 0.75)
+
+  panel <- expand.grid(
+    unit = c("Target", "A", "B"),
+    period = periods,
+    stringsAsFactors = FALSE
+  )
+  panel$outcome <- c(rbind(target, donor_a, donor_b))
+
+  prepared <- trsc_data(
+    panel, "unit", "period", "outcome", "Target", c("A", "B"),
+    intervention_time = 9, pre_period = periods, predictors = "outcome"
+  )
+  geometry <- trsc_geometry(cbind(
+    A = c(0, 0, 0, 0, 0),
+    B = c(0.5, 1, 1.5, 2, 2.5)
+  ))
+
+  for (order in c(1L, 2L)) {
+    low <- trsc_fit(prepared, geometry, kappa = 0.01, q = order)
+    high <- trsc_fit(prepared, geometry, kappa = 50, q = order)
+
+    expect_lte(
+      high$objective$temporal_roughness,
+      low$objective$temporal_roughness + 1e-7
+    )
+    expect_gte(
+      high$objective$fit_loss + 1e-7,
+      low$objective$fit_loss
+    )
+  }
+})
+
+test_that("kappa zero recovers period-specific feasible outcome fits", {
+  periods <- 1:6
+  donor_a <- rep(0, length(periods))
+  donor_b <- rep(1, length(periods))
+  target <- c(0.15, 0.80, 0.30, 0.65, 0.45, 0.55)
+
+  panel <- expand.grid(
+    unit = c("Target", "A", "B"),
+    period = periods,
+    stringsAsFactors = FALSE
+  )
+  panel$outcome <- c(rbind(target, donor_a, donor_b))
+
+  prepared <- trsc_data(
+    panel, "unit", "period", "outcome", "Target", c("A", "B"),
+    intervention_time = 7, pre_period = periods, predictors = "outcome"
+  )
+  geometry <- trsc_geometry(cbind(
+    A = c(0, 0, 0, 0),
+    B = c(0.5, 1, 1.5, 2)
+  ))
+
+  fit <- trsc_fit(prepared, geometry, kappa = 0, q = 1)
+  expect_equal(unname(stats::fitted(fit)), target, tolerance = 2e-6)
+  expect_equal(fit$objective$fit_loss, 0, tolerance = 1e-10)
+})

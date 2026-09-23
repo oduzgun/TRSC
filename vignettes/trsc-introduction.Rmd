@@ -1,0 +1,128 @@
+---
+title: "TRSC: Deployable Pre-treatment Workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{TRSC: Deployable Pre-treatment Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+TRSC estimates temporally regularized synthetic-control **predictive relationships**.
+The predictive relationship is the primary fitted object; a donor-weight vector is
+one numerical simplex representation and can be nonunique when donors are
+predictively redundant.
+
+This vignette shows the deployable **pre-treatment** workflow implemented by the
+package. It does not construct a post-treatment counterfactual or treatment
+effect.
+
+## Synthetic untreated panel
+
+```{r panel}
+library(TRSC)
+
+periods <- 1:15
+donor_a <- rep(0, length(periods))
+donor_b <- rep(10, length(periods))
+target <- 10 * c(
+  rep(0.2, 4),
+  0.2,
+  0.2, 0.2, 0.2, 0.8,
+  0.8,
+  rep(0.8, 5)
+)
+
+panel <- expand.grid(
+  unit = c("Target", "A", "B"),
+  period = periods,
+  stringsAsFactors = FALSE
+)
+panel$outcome <- c(rbind(target, donor_a, donor_b))
+
+prepared <- trsc_data(
+  panel,
+  unit = "unit",
+  time = "period",
+  outcome = "outcome",
+  treated = "Target",
+  donors = c("A", "B"),
+  intervention_time = 16,
+  pre_period = periods,
+  predictors = "outcome"
+)
+```
+
+## Fix the sample roles before validation
+
+The theorem-aligned procedure uses an earlier calibration segment, an intact
+contiguous fitting block ending before the untreated cutoff, and later
+validation dates. Thinning and gaps are explicit.
+
+```{r plan}
+plan <- trsc_sample_plan(
+  prepared,
+  calibration_periods = 1:4,
+  fitting_periods = 6:9,
+  validation_periods = 11:14,
+  calibration_thin = 2,
+  validation_thin = 2,
+  target_period = 15,
+  min_gap0 = 2,
+  min_gap1 = 2
+)
+plan
+```
+
+The package verifies chronology and arithmetic. It cannot verify that the user
+chose these periods without inspecting outcomes, nor can it certify population
+mixing, coercivity, or other theorem assumptions.
+
+## Calibrate, fit, freeze, validate
+
+```{r workflow}
+workflow <- trsc_workflow(
+  prepared,
+  plan,
+  q = c(1, 2),
+  kappa = c(0.05, 1),
+  bandwidths = c(1, 2, 4)
+)
+workflow
+```
+
+Each `(q, kappa)` path is fitted once on the intact fitting block. Terminal
+readouts are then constructed from those frozen fits. Only after the complete
+candidate library is frozen are the retained validation outcomes used for the
+signed local-linear cutoff score.
+
+```{r selection}
+workflow$selection$scores
+workflow$selection$selected_name
+workflow$selected
+```
+
+There is no rolling refit and no final full-sample refit in
+`trsc_workflow()`.
+
+## Optional dependence-transfer arithmetic
+
+If an absolute-regularity coefficient is supplied as an assumption, the package
+can calculate the paper's coupling-error expression.
+
+```{r mixing}
+mixing <- trsc_mixing_bound(plan, function(k) exp(-k / 2))
+mixing
+```
+
+This output is an assumption-driven calculation. It is **not** an empirical
+test or certification of beta-mixing.
+
+## What the workflow does not identify
+
+The selected object is a pre-treatment cutoff predictive relationship. The
+package does not infer a post-treatment continuation rule, untreated
+counterfactual, ATT, or realized untreated innovation from this workflow.
