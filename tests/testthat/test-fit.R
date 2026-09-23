@@ -80,3 +80,42 @@ test_that("fit requires an explicitly compatible supplied geometry", {
   expect_error(trsc_fit(prepared, trsc_geometry(cbind(A=1:4,B=4:1)),
                         kappa = 1, q = 3), "exactly 1 or 2")
 })
+
+
+test_that("predictive_path separates the fitted relationship from metric identification claims", {
+  panel <- expand.grid(
+    unit = c("Target", "A", "B"),
+    period = 1:6,
+    stringsAsFactors = FALSE
+  )
+  A <- 1:6
+  B <- c(6, 4, 5, 2, 3, 1)
+  target <- 0.25 * A + 0.75 * B
+  panel$outcome <- c(rbind(target, A, B))
+
+  prepared <- trsc_data(
+    panel, "unit", "period", "outcome", "Target", c("A", "B"),
+    7, 1:6, "outcome"
+  )
+  geometry <- trsc_geometry(cbind(
+    A = c(-1, 0, 1, 2),
+    B = c(2, -1, 3, 0)
+  ))
+  fit <- trsc_fit(prepared, geometry, kappa = 2, q = 1)
+
+  path <- predictive_path(fit)
+  expect_s3_class(path, "trsc_predictive_path")
+  expect_equal(path$representative, stats::weights(fit))
+  expect_equal(path$metric_coordinates, fit$metric_coordinates)
+  expect_identical(
+    path$diagnostics$representation_unique_under_empirical_geometry,
+    fit$diagnostics$representation_unique_under_empirical_geometry
+  )
+
+  diagnostics <- trsc_diagnostics(fit)
+  expect_s3_class(diagnostics, "trsc_diagnostics")
+  expect_equal(diagnostics$fit$sse, fit$objective$fit_loss)
+  expect_false(diagnostics$certification$population_coercivity)
+  expect_false(diagnostics$certification$calibration_complexity)
+  expect_false(diagnostics$certification$causal_identification)
+})
