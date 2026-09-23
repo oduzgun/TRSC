@@ -183,6 +183,11 @@ trsc_profile_coordinates <- function(geometry, w) {
   drop(geometry$B %*% as.numeric(w))
 }
 
+#' Print empirical TRSC predictive geometry
+#'
+#' @param x A `trsc_geometry` object.
+#' @param ... Unused.
+#' @rdname trsc_geometry
 #' @export
 print.trsc_geometry <- function(x, ...) {
   cat("TRSC empirical predictive geometry\n")
