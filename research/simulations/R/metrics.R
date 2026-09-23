@@ -99,3 +99,62 @@ trsc_sim_evaluate_workflow <- function(workflow, scenario) {
 
   list(fits = fit_metrics, cutoff = cutoff)
 }
+
+
+trsc_sim_selection_comparison <- function(prepared, workflow, scenario) {
+  if (!inherits(prepared, "trsc_data") ||
+      !inherits(workflow, "trsc_workflow") ||
+      !inherits(scenario, "trsc_sim_scenario")) {
+    stop("prepared, workflow and scenario are not compatible.", call. = FALSE)
+  }
+  target_period <- workflow$plan$target_period
+  true_cutoff <- scenario$true_weights[, target_period]
+
+  historical <- trsc_sim_historical_select(
+    prepared,
+    workflow$candidate_library,
+    workflow$plan$validation$retained_periods
+  )
+
+  evaluate <- function(label, candidate_name, candidate, score, target) {
+    w <- candidate$representative[scenario$donor_names]
+    data.frame(
+      method = label,
+      selected_candidate = candidate_name,
+      selected_q = candidate$candidate_specification$q,
+      selected_kappa = candidate$candidate_specification$kappa,
+      selected_h = candidate$candidate_specification$h,
+      validation_target = target,
+      validation_score = as.numeric(score),
+      cutoff_profile_loss = trsc_sim_reference_prediction_loss(
+        w, true_cutoff, scenario$reference_states
+      ),
+      cutoff_heldout_prediction_loss = trsc_sim_reference_prediction_loss(
+        w, true_cutoff, scenario$heldout_states
+      ),
+      cutoff_raw_share_mse = if (scenario$representation_identified) {
+        mean((w - true_cutoff)^2)
+      } else {
+        NA_real_
+      },
+      stringsAsFactors = FALSE
+    )
+  }
+
+  rbind(
+    evaluate(
+      "cutoff_targeted_local_linear",
+      workflow$selection$selected_name,
+      workflow$selected,
+      workflow$selection$scores[workflow$selection$selected_name],
+      "cutoff risk"
+    ),
+    evaluate(
+      "ordinary_historical_validation",
+      historical$selected_name,
+      historical$selected,
+      historical$scores[historical$selected_name],
+      historical$target
+    )
+  )
+}
