@@ -3,6 +3,7 @@
 #' @param object A fitted TRSC object.
 #' @param ... Additional arguments for methods.
 #' @return Method-dependent predictive-path representation.
+#' @importFrom stats fitted residuals weights
 #' @export
 predictive_path <- function(object, ...) {
   UseMethod("predictive_path")
