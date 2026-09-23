@@ -78,7 +78,9 @@ trsc_sim_raw_share_fit <- function(prepared, fitting_periods, kappa, q) {
 }
 
 trsc_sim_benchmark_metrics <- function(prepared, scenario, plan,
-                                       raw_kappa = 1) {
+                                       raw_kappa = 1,
+                                       local_bandwidth = 5,
+                                       tv_lambda = 1) {
   true_fit <- scenario$true_weights[, plan$fitting$periods, drop = FALSE]
   true_cutoff <- scenario$true_weights[, plan$target_period]
 
@@ -105,6 +107,12 @@ trsc_sim_benchmark_metrics <- function(prepared, scenario, plan,
   )
   raw_q2 <- trsc_sim_raw_share_fit(
     prepared, plan$fitting$periods, raw_kappa, 2
+  )
+  local_varying <- trsc_sim_local_varying_simplex(
+    prepared, plan$fitting$periods, bandwidth = local_bandwidth
+  )
+  total_variation <- trsc_sim_total_variation_fit(
+    prepared, plan$fitting$periods, lambda = tv_lambda
   )
 
   summarize_path <- function(label, W, training_rmse) {
@@ -144,6 +152,16 @@ trsc_sim_benchmark_metrics <- function(prepared, scenario, plan,
       "raw_share_q2",
       unclass(stats::weights(raw_q2)),
       sqrt(mean(stats::residuals(raw_q2)^2))
+    ),
+    summarize_path(
+      "local_varying_simplex",
+      local_varying$weights,
+      sqrt(mean(local_varying$residuals^2))
+    ),
+    summarize_path(
+      "total_variation",
+      total_variation$weights,
+      sqrt(mean(total_variation$residuals^2))
     )
   )
 
@@ -151,7 +169,9 @@ trsc_sim_benchmark_metrics <- function(prepared, scenario, plan,
     static_simplex = static_cutoff,
     period_specific = unclass(stats::weights(period_specific))[, ncol(period_specific$weights)],
     raw_share_q1 = unclass(stats::weights(raw_q1))[, ncol(raw_q1$weights)],
-    raw_share_q2 = unclass(stats::weights(raw_q2))[, ncol(raw_q2$weights)]
+    raw_share_q2 = unclass(stats::weights(raw_q2))[, ncol(raw_q2$weights)],
+    local_varying_simplex = local_varying$weights[, ncol(local_varying$weights)],
+    total_variation = total_variation$weights[, ncol(total_variation$weights)]
   )
 
   cutoff_metrics <- do.call(rbind, lapply(names(endpoint_weights), function(label) {
@@ -181,7 +201,9 @@ trsc_sim_benchmark_metrics <- function(prepared, scenario, plan,
       static = static,
       period_specific = period_specific,
       raw_q1 = raw_q1,
-      raw_q2 = raw_q2
+      raw_q2 = raw_q2,
+      local_varying = local_varying,
+      total_variation = total_variation
     )
   )
 }
