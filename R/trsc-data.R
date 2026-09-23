@@ -1,4 +1,4 @@
-#' Prepare raw panel data for temporally regularized synthetic control.
+#' Prepare raw panel data for Temporally Regularized Synthetic Controls.
 #'
 #' Select and validate an explicitly declared pre-treatment panel for one
 #' target and at least two donors. Keep measurement values as supplied,
