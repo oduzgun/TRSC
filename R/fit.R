@@ -27,11 +27,11 @@
 #'   weights are retained as one solver-selected simplex representation and
 #'   need not be unique.
 #'
-#' @details The fitted objective is
-#'   deqn{\sum_t (y_t-x_t^\top w_t)^2 +
-#'   \kappa\sum_{t=q+1}^n (\Delta^q w_t)^\top\widehat\Gamma
-#'   (\Delta^q w_t),}
-#'   subject to eqn{w_t} lying in the donor simplex at every fitted date.
+#' @details The objective is the sum of pre-treatment squared residuals
+#'   and `kappa` times the supplied-geometry norm of the order-`q`
+#'   temporal differences in the donor representation. Each date's donor
+#'   vector is constrained to the simplex.
+#'
 #'   The supplied geometry may be singular. No inverse of its second-moment
 #'   matrix is formed and no coordinate ridge is added to force uniqueness.
 #'
