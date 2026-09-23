@@ -187,9 +187,9 @@ trsc_sim_run_grid <- function(
           message = conditionMessage(attempt),
           stringsAsFactors = FALSE
         )
-        runs[[index]] <- NULL
+        runs[index] <- list(NULL)
       } else {
-        runs[[index]] <- attempt
+        runs[index] <- list(attempt)
       }
     }
   }
@@ -230,7 +230,7 @@ trsc_sim_run_grid <- function(
     metadata = list(
       scenarios = scenarios,
       seeds = as.integer(seeds),
-      attempted_runs = length(runs),
+      attempted_runs = length(scenarios) * length(seeds),
       successful_runs = length(successful_runs),
       failed_runs = nrow(failure_table),
       simulation_findings_claimed = FALSE,
