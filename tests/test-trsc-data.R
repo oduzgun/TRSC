@@ -1,11 +1,11 @@
-source("R/tvsc.dataprep.R")
+source("R/trsc-data.R")
 panel <- expand.grid(state = c("Target", "DonorB", "DonorA"),
                      year = 2000:2004, stringsAsFactors = FALSE)
 panel$sales <- seq_len(nrow(panel)) * 10
 panel$income <- 1000 + seq_len(nrow(panel))
 panel$constant <- 1
 prepare <- function(data = panel) {
-  tvsc.dataprep(data, "state", "year", "sales", "Target",
+  trsc_data(data, "state", "year", "sales", "Target",
                  c("DonorA", "DonorB"), 2003, 2000:2002,
                  c("sales", "income", "constant"))
 }
@@ -15,7 +15,7 @@ expect_error <- function(expression, pattern) {
 }
 prepared <- prepare()
 stopifnot(identical(prepared$schema_version, 2L),
-          inherits(prepared$blocks, "tvsc_blocks"),
+          inherits(prepared$blocks, "trsc_blocks"),
           identical(prepared$blocks$schema_version, 2L),
           identical(prepared$blocks$schema, prepared$schema),
           identical(prepared$blocks$recipe, prepared$recipe),
@@ -45,7 +45,7 @@ for (period in prepared$schema$pre_period) {
 }
 stopifnot(identical(unname(prepared$blocks$X0[[1]]["sales", ]), c(30, 20)),
           identical(unname(prepared$blocks$Y1), c(10, 40, 70)))
-stopifnot(inherits(prepared, "tvsc_prepared"), nrow(prepared$training) == 9L,
+stopifnot(inherits(prepared, "trsc_data"), nrow(prepared$training) == 9L,
           identical(prepared$schema$donors, c("DonorA", "DonorB")),
           identical(prepared$training$state, rep(c("Target", "DonorA", "DonorB"), 3)),
           identical(prepared$diagnostics$constant_predictors, "constant"),
@@ -81,32 +81,32 @@ future_duplicates <- prepare(rbind(panel, panel[panel$year == 2004, ]))
 stopifnot(identical(prepared$training, future_duplicates$training),
           identical(prepared$blocks, future_duplicates$blocks),
           isFALSE(future_duplicates$diagnostics$future_outcomes_validated))
-single <- tvsc.dataprep(panel, "state", "year", "sales", "Target",
+single <- trsc_data(panel, "state", "year", "sales", "Target",
                         c("DonorA", "DonorB"), 2003, 2000:2002, "sales")
 stopifnot(identical(single$schema$predictors, "sales"), isTRUE(single$recipe$outcome_in_predictors),
           identical(dim(single$blocks$X0[[1]]), c(1L, 2L)),
           identical(names(single$blocks$X1[[1]]), "sales"),
           identical(single$blocks$Y1, prepared$blocks$Y1),
           identical(single$blocks$Y0, prepared$blocks$Y0))
-expect_error(tvsc.dataprep(panel, "state", "year", "sales", "Target",
+expect_error(trsc_data(panel, "state", "year", "sales", "Target",
                            c("Target", "DonorA"), 2003, 2000:2002, "sales"), "own donors")
-expect_error(tvsc.dataprep(panel, "state", "year", "sales", "Target",
+expect_error(trsc_data(panel, "state", "year", "sales", "Target",
                            c("DonorA", "DonorB"), 2003, c(2000, 2002, 2004), "sales"), "period_step spacing")
-expect_error(tvsc.dataprep(panel, "state", "year", "sales", "Target",
+expect_error(trsc_data(panel, "state", "year", "sales", "Target",
                            c("DonorA", "DonorB"), 2002, 2000:2002, "sales"), "precede intervention_time")
-expect_error(tvsc.dataprep(panel, "state", "year", "sales", "Target",
+expect_error(trsc_data(panel, "state", "year", "sales", "Target",
                            c("DonorA", "DonorB"), 2003, 2000:2002, c("sales", "sales")), "unique predictor column")
 numeric_panel <- panel
 numeric_panel$state <- match(numeric_panel$state, c("Target", "DonorA", "DonorB"))
-numeric_prepared <- tvsc.dataprep(numeric_panel, "state", "year", "sales", 1,
+numeric_prepared <- trsc_data(numeric_panel, "state", "year", "sales", 1,
                                  c(3, 2), 2003, 2000:2002, "sales")
 stopifnot(identical(numeric_prepared$schema$donors, c(3, 2)),
           identical(colnames(numeric_prepared$blocks$X0[[1]]), c("3", "2")),
           identical(unname(numeric_prepared$blocks$Y0),
                     unname(prepared$blocks$Y0[, c("DonorB", "DonorA")])))
-expect_error(tvsc.dataprep(numeric_panel, "state", "year", "sales", "1",
+expect_error(trsc_data(numeric_panel, "state", "year", "sales", "1",
                            c("2", "3"), 2003, 2000:2002, "sales"), "character/numeric type")
-covariates <- tvsc.dataprep(panel, "state", "year", "sales", "Target",
+covariates <- trsc_data(panel, "state", "year", "sales", "Target",
                            c("DonorA", "DonorB"), 2003, 2000:2002,
                            c("constant", "income"))
 stopifnot(identical(names(covariates$blocks$X1[[1]]), c("constant", "income")),
@@ -125,28 +125,28 @@ factor_panel$state <- factor(factor_panel$state)
 stopifnot(identical(prepare(factor_panel)$blocks, prepared$blocks))
 spaced_panel <- panel
 spaced_panel$year <- 2000 + 2 * (spaced_panel$year - 2000)
-spaced <- tvsc.dataprep(spaced_panel, "state", "year", "sales", "Target",
+spaced <- trsc_data(spaced_panel, "state", "year", "sales", "Target",
                        c("DonorA", "DonorB"), 2006, c(2000, 2002, 2004),
                        "sales", period_step = 2)
 stopifnot(identical(names(spaced$blocks$X0), c("2000", "2002", "2004")),
           identical(unname(spaced$blocks$Y0), unname(single$blocks$Y0)))
-full <- tvsc.dataprep(panel, "state", "year", "sales", "Target",
+full <- trsc_data(panel, "state", "year", "sales", "Target",
                      c("DonorA", "DonorB"), 2005, 2000:2004,
                      c("sales", "income", "constant"))
-prefix <- tvsc.dataprep(full$training, "state", "year", "sales", "Target",
+prefix <- trsc_data(full$training, "state", "year", "sales", "Target",
                        c("DonorA", "DonorB"), 2005, 2000:2002,
                        c("sales", "income", "constant"))
 changed_training <- full$training
 changed_training$sales[changed_training$year > 2002] <- NA_real_
 changed_training$income[changed_training$year > 2002] <- Inf
-changed_prefix <- tvsc.dataprep(changed_training, "state", "year", "sales", "Target",
+changed_prefix <- trsc_data(changed_training, "state", "year", "sales", "Target",
                                c("DonorA", "DonorB"), 2005, 2000:2002,
                                c("sales", "income", "constant"))
 stopifnot(identical(prefix$blocks, changed_prefix$blocks),
           identical(prefix$blocks$X0, full$blocks$X0[1:3]))
 isolated <- new.env(parent = baseenv())
-sys.source("R/tvsc.dataprep.R", envir = isolated)
-isolated_prepared <- isolated$tvsc.dataprep(panel, "state", "year", "sales", "Target",
+sys.source("R/trsc-data.R", envir = isolated)
+isolated_prepared <- isolated$trsc_data(panel, "state", "year", "sales", "Target",
                                           c("DonorA", "DonorB"), 2003, 2000:2002,
                                           c("sales", "income", "constant"))
 stopifnot(identical(isolated_prepared, prepared),

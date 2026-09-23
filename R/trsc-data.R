@@ -30,14 +30,14 @@
 #' @param period_step One positive integer-valued spacing between successive
 #'   pre_period dates. Defaults to 1.
 #'
-#' @return A list of class tvsc_prepared containing:
+#' @return A list of class trsc_data containing:
 #'   \describe{
 #'     \item{schema_version}{Object-schema version, currently 2L.}
 #'     \item{schema}{Column roles, predictors, target and ordered donor IDs,
 #'       intervention_time, pre_period and period_step.}
 #'     \item{training}{Selected identifier, outcome and predictor columns,
 #'       ordered by date, then target first and donors in supplied order.}
-#'     \item{blocks}{Schema-version-2 tvsc_blocks for the full pre-period:
+#'     \item{blocks}{Schema-version-2 trsc_blocks for the full pre-period:
 #'       date-indexed X1 feature vectors and X0 predictor-by-donor matrices,
 #'       Y1 target outcomes, Y0 date-by-donor outcomes, dates and dimensions.}
 #'     \item{future_donors}{Available post-treatment donor unit, time and
@@ -76,7 +76,7 @@
 #' )
 #' panel$sales <- seq_len(nrow(panel)) * 10
 #' panel$income <- 1000 + seq_len(nrow(panel))
-#' prepared <- tvsc.dataprep(
+#' prepared <- trsc_data(
 #'   data = panel, unit = "state", time = "year", outcome = "sales",
 #'   treated = "Target", donors = c("DonorB", "DonorA"),
 #'   intervention_time = 2003, pre_period = 2000:2002,
@@ -92,7 +92,7 @@
 #'   transcript dated September 15, 2026 reports the raw-preparation checks
 #'   passing. The R version and sourced-file revision were not supplied;
 #'   independent local execution and the separate example remain pending.
-tvsc.dataprep <- function(data, unit, time, outcome, treated, donors,
+trsc_data <- function(data, unit, time, outcome, treated, donors,
                            intervention_time, pre_period, predictors,
                            period_step = 1) {
   # Local validators reject ambiguous types instead of silently coercing data.
@@ -222,13 +222,13 @@ tvsc.dataprep <- function(data, unit, time, outcome, treated, donors,
                        excluded_rows = nrow(data) - nrow(training) - sum(future_rows),
                        constant_predictors = constant_predictors,
                        future_outcomes_validated = FALSE)
-  ), class = "tvsc_prepared")
-  prepared$blocks <- .tvsc_raw_blocks(training, prepared$schema,
+  ), class = "trsc_data")
+  prepared$blocks <- .trsc_raw_blocks(training, prepared$schema,
                                      prepared$recipe, constant_predictors)
   prepared
 }
 
-.tvsc_raw_blocks <- function(training, schema, recipe, constant_predictors) {
+.trsc_raw_blocks <- function(training, schema, recipe, constant_predictors) {
   periods <- schema$pre_period
   predictor_names <- unname(schema$predictors)
   donor_names <- as.character(schema$donors)
@@ -265,5 +265,5 @@ tvsc.dataprep <- function(data, unit, time, outcome, treated, donors,
     X1 = X1, X0 = X0, Y1 = Y1, Y0 = Y0, recipe = recipe,
     diagnostics = list(training_rows = nrow(training),
                        constant_predictors = constant_predictors)
-  ), class = "tvsc_blocks")
+  ), class = "trsc_blocks")
 }
