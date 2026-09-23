@@ -26,7 +26,7 @@ so a change in donor representation is measured through
 
 The estimator is intended to support temporal difference orders (q=1) and (q=2) without requiring (Gamma_P) to be invertible.
 
-The **stable implementation currently stops before the optimizer**. No function in the current stable API claims to deliver a final TRSC fit, post-treatment counterfactual, ATT, or treatment effect.
+The stable implementation now includes the **pre-treatment convex fitting core**. It does not yet include the paper's frozen candidate-selection/readout procedure and does not claim to deliver a post-treatment counterfactual, ATT, or treatment effect.
 
 ## Current stable foundation
 
@@ -37,6 +37,10 @@ The **stable implementation currently stops before the optimizer**. No function 
 - `trsc_profile_distance()`: evaluate predictive distance under the empirical geometry.
 - `trsc_profile_equivalent()`: test empirical profile equivalence at a declared numerical tolerance.
 - internal common difference operators for (q=1) and (q=2).
+- `trsc_fit()`: simplex-constrained pre-treatment fitting under a supplied predictive geometry.
+- `predictive_path()`: primary fitted profile in empirical quotient coordinates.
+- `weights()`: one solver-selected donor-coordinate representation, explicitly secondary.
+- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.
 
 Empirical rank, null dimension and representation diagnostics are **diagnostics only**. They do not verify population coercivity, calibration complexity, continuation assumptions or causal identification.
 
@@ -64,13 +68,13 @@ diagnostics
 experimental post-treatment identification layer
 ```
 
-The fitting, selection and final prediction layers remain deliberately unfinished until their software contracts are aligned with the frozen pre-treatment theory.
+The fitting core is implemented. Candidate/readout selection, cutoff-targeted validation and any post-treatment identification layer remain separate future stages.
 
 ## Representation invariance
 
 For two donor representations (w) and (v), zero predictive distance means they are equivalent at the geometry's fitted resolution. Adding or duplicating a predictively redundant donor may change a numerical weight vector while leaving the predictive profile unchanged.
 
-The package will therefore expose raw weights only as solver-selected coordinates when fitting is added. A numerical tie-break, if required for reproducibility, will be documented as a **computational convention**, not as an identification result.
+The package exposes raw weights only as solver-selected coordinates. The optimizer does not add an identity ridge or other coordinate-based tie-break to manufacture uniqueness. If a numerical tie-break is introduced later for reproducibility, it will be documented as a **computational convention**, not as an identification result.
 
 ## Post-treatment boundary
 
@@ -93,7 +97,7 @@ Earlier TVSC scripts for version-1 blocks/scaling/metrics and the version-2 `tvs
 GitHub Actions run:
 
 - the preserved standalone contracts for data preparation and chronological splitting;
-- package-level tests for predictive geometry, redundancy, donor permutation and common (q=1/q=2) temporal-difference infrastructure;
+- package-level tests for predictive geometry, redundancy, donor permutation, singular fitting, the TRSC optimizer and common (q=1/q=2) temporal-difference infrastructure;
 - `R CMD check` after regenerating roxygen documentation.
 
 The repository contains no public release and no empirical application.
