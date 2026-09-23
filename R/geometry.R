@@ -97,6 +97,8 @@ trsc_geometry <- function(donor_states, tolerance = NULL) {
         empirical_rank = as.integer(rank),
         empirical_null_dimension = as.integer(J - rank),
         affine_simplex_rank = as.integer(affine_rank),
+        predictive_dimension_empirical = as.integer(max(0L, affine_rank - 1L)),
+        simplex_null_dimension_empirical = as.integer(J - affine_rank),
         representation_unique_empirical = representation_unique,
         eigenvalues = eig$values,
         centered = FALSE
@@ -193,8 +195,10 @@ print.trsc_geometry <- function(x, ...) {
   cat("TRSC empirical predictive geometry\n")
   cat("  Observations: ", x$observations, "\n", sep = "")
   cat("  Donors:       ", x$donors, "\n", sep = "")
-  cat("  Empirical rank: ", x$diagnostics$empirical_rank, "\n", sep = "")
-  cat("  Null dimension: ", x$diagnostics$empirical_null_dimension, "\n", sep = "")
+  cat("  Empirical second-moment rank: ", x$diagnostics$empirical_rank, "\n", sep = "")
+  cat("  Empirical second-moment null dimension: ", x$diagnostics$empirical_null_dimension, "\n", sep = "")
+  cat("  Predictive simplex dimension: ", x$diagnostics$predictive_dimension_empirical, "\n", sep = "")
+  cat("  Simplex representation null dimension: ", x$diagnostics$simplex_null_dimension_empirical, "\n", sep = "")
   cat("  Raw representation unique at empirical resolution: ",
       if (isTRUE(x$diagnostics$representation_unique_empirical)) "yes" else "no", "\n", sep = "")
   invisible(x)
