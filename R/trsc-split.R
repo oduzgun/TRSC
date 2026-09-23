@@ -4,8 +4,8 @@
 #' selected units together at each date. Return date assignments and metadata
 #' only; do not change the prepared panel, transform values or fit a model.
 #'
-#' @param prepared An unmodified tvsc_prepared object with schema_version 2L,
-#'   returned by tvsc.dataprep(). Checks schema and raw-block structure,
+#' @param prepared An unmodified trsc_data object with schema_version 2L,
+#'   returned by trsc_data(). Checks schema and raw-block structure,
 #'   but does not inspect outcome or predictor values or revalidate the panel.
 #'   Rebuild older preparation objects from the original panel.
 #' @param initial Integer-valued number of dates in the first training window,
@@ -16,7 +16,7 @@
 #'   advances between folds. Defaults to 1. Counts dates, not panel rows or
 #'   numeric calendar-index units.
 #'
-#' @return A list of class tvsc_splits containing:
+#' @return A list of class trsc_splits containing:
 #'   \describe{
 #'     \item{schema_version}{Split-object schema version, currently 1L.}
 #'     \item{schema}{A copy of the prepared panel's schema, including unit and
@@ -53,22 +53,20 @@
 #'   stringsAsFactors = FALSE
 #' )
 #' panel$sales <- seq_len(nrow(panel)) * 10
-#' prepared <- tvsc.dataprep(
+#' prepared <- trsc_data(
 #'   panel, "state", "year", "sales", "Target", c("DonorB", "DonorA"),
 #'   2008, 2000:2007, "sales"
 #' )
-#' splits <- tvsc.split(prepared, initial = 4, horizon = 2)
+#' splits <- trsc_split(prepared, initial = 4, horizon = 2)
 #' splits$folds[[1]]$train_period
 #' splits$folds[[1]]$validation_period
 #' splits$diagnostics
 #'
-#' @note Revised version-2 preparation compatibility remains unexecuted in R
-#'   here; the split output remains version 1. Earlier input-contract evidence:
-#'   a user-supplied R console transcript
-#'   dated September 15, 2026 shows the split checks passing, including the
-#'   eight-date example. The R version and sourced-file revisions were not
-#'   supplied; an independent local rerun remains pending.
-tvsc.split <- function(prepared, initial, horizon, step = 1) {
+#' @note The split object remains schema version 1 while accepting
+#'   preparation schema version 2. Downstream preprocessing and calibration
+#'   must respect each fold's training cutoff.
+#' @export
+trsc_split <- function(prepared, initial, horizon, step = 1) {
   # Check the object contract without reading or transforming panel values.
   fail <- function(message) stop(message, call. = FALSE)
   whole_numeric <- function(value) {
@@ -89,15 +87,15 @@ tvsc.split <- function(prepared, initial, horizon, step = 1) {
       (is.numeric(value) && !is.object(value) && is.null(dim(value)) &&
        length(value) > 0L && all(is.finite(value)) && !anyDuplicated(value))
   }
-  if (!inherits(prepared, "tvsc_prepared") || !is.list(prepared) ||
+  if (!inherits(prepared, "trsc_data") || !is.list(prepared) ||
       !identical(prepared$schema_version, 2L) || !is.list(prepared$schema)) {
-    fail("prepared must be a schema-version-2 tvsc_prepared object; rerun tvsc.dataprep() from the original panel.")
+    fail("prepared must be a schema-version-2 trsc_data object; rerun trsc_data() from the original panel.")
   }
   schema <- prepared$schema
   required <- c("unit", "time", "outcome", "predictors", "treated", "donors",
                 "intervention_time", "pre_period", "period_step")
   if (!all(required %in% names(schema)) || anyDuplicated(names(schema))) {
-    fail("prepared has an incomplete or ambiguous schema; recreate it with tvsc.dataprep().")
+    fail("prepared has an incomplete or ambiguous schema; recreate it with trsc_data().")
   }
   periods <- schema$pre_period
   spacing <- schema$period_step
@@ -118,7 +116,7 @@ tvsc.split <- function(prepared, initial, horizon, step = 1) {
       !valid_ids(schema$donors) || length(schema$donors) < 2L ||
       is.numeric(schema$treated) != is.numeric(schema$donors) ||
       schema$treated %in% schema$donors) {
-    fail("prepared has invalid column roles or target/donor metadata; rerun tvsc.dataprep().")
+    fail("prepared has invalid column roles or target/donor metadata; rerun trsc_data().")
   }
   predictor_names <- unname(schema$predictors)
   donor_names <- as.character(schema$donors)
@@ -137,10 +135,10 @@ tvsc.split <- function(prepared, initial, horizon, step = 1) {
       !is.null(prepared$recipe$scaling) ||
       !identical(prepared$recipe$outcome_in_predictors,
                  schema$outcome %in% schema$predictors)) {
-    fail("prepared has an invalid version-2 training structure or raw recipe; rerun tvsc.dataprep() from the original panel.")
+    fail("prepared has an invalid version-2 training structure or raw recipe; rerun trsc_data() from the original panel.")
   }
   blocks <- prepared$blocks
-  if (!inherits(blocks, "tvsc_blocks") || inherits(blocks, "tvsc_scaled_blocks") ||
+  if (!inherits(blocks, "trsc_blocks") || inherits(blocks, "trsc_scaled_blocks") ||
       !has_fields(blocks, c("schema_version", "schema", "periods", "cutoff",
                            "dimensions", "X1", "X0", "Y1", "Y0", "recipe", "diagnostics")) ||
       !identical(blocks$schema_version, 2L) || !identical(blocks$schema, schema) ||
@@ -156,7 +154,7 @@ tvsc.split <- function(prepared, initial, horizon, step = 1) {
       !is.matrix(blocks$Y0) || !is.numeric(blocks$Y0) ||
       !identical(dim(blocks$Y0), c(period_count, donor_count)) ||
       !identical(dimnames(blocks$Y0), list(date_names, donor_names))) {
-    fail("prepared has incompatible raw blocks; rerun tvsc.dataprep() from the original panel.")
+    fail("prepared has incompatible raw blocks; rerun trsc_data() from the original panel.")
   }
   for (date_index in seq_along(periods)) {
     target <- blocks$X1[[date_index]]
@@ -166,7 +164,7 @@ tvsc.split <- function(prepared, initial, horizon, step = 1) {
         !is.matrix(donors) || !is.numeric(donors) ||
         !identical(dim(donors), c(predictor_count, donor_count)) ||
         !identical(dimnames(donors), list(predictor_names, donor_names))) {
-      fail("prepared has incompatible raw block dimensions or ordering; rerun tvsc.dataprep().")
+      fail("prepared has incompatible raw block dimensions or ordering; rerun trsc_data().")
     }
   }
 
@@ -211,5 +209,5 @@ tvsc.split <- function(prepared, initial, horizon, step = 1) {
     folds = folds,
     diagnostics = list(fold_count = length(folds), assessment_counts = counts,
                        unassessed_period = periods[counts == 0L])
-  ), class = "tvsc_splits")
+  ), class = "trsc_splits")
 }

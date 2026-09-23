@@ -1,0 +1,5 @@
+^\.github$
+^research$
+^validation$
+^docs$
+^LICENSE[.]md$
