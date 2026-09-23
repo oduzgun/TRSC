@@ -14,15 +14,15 @@ This repository is under active methodological development and is currently priv
 
 The pre-treatment statistical theory distinguishes prediction-space geometry from arbitrary Euclidean geometry in donor coordinates. For donor state (X), the prediction metric is the uncentered second moment
 
-$
+```math
 \Gamma_P = E_P[XX^\top].
-$
+```
 
 so a change in donor representation is measured through
 
-$
+```math
 (w-v)^\top \Gamma_P (w-v).
-$
+```
 
 The estimator is intended to support temporal difference orders (q=1) and (q=2) without requiring (Gamma_P) to be invertible.
 
@@ -104,14 +104,14 @@ The candidate specification, calibration rule, bandwidth library, and tie order 
 
 For a dependent panel, the software can calculate
 
-$
+```math
 \Delta_{\mathrm{mix}}
 =
 (N_C-1)\beta(b_C)
 +\beta(g_0)
 +\beta(g_1)
 +(v-1)\beta(b_V).
-$
+```
 
 or the explicit exponential-envelope spacing rule supplied by the paper. These calculations are conditional on user-supplied mixing assumptions; they are not empirical certification of beta-mixing.
 
