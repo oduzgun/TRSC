@@ -105,7 +105,9 @@ test_that("predictive_path separates the fitted relationship from metric identif
 
   path <- predictive_path(fit)
   expect_s3_class(path, "trsc_predictive_path")
-  expect_equal(path$representative, stats::weights(fit))
+  expect_identical(dim(path$representative), dim(stats::weights(fit)))
+  expect_equal(as.numeric(path$representative),
+               as.numeric(stats::weights(fit)), tolerance = 0)
   expect_equal(path$metric_coordinates, fit$metric_coordinates)
   expect_identical(
     path$diagnostics$representation_unique_under_empirical_geometry,
