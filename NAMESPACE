@@ -1,0 +1,8 @@
+# Generated manually to match current roxygen exports.
+export(trsc_data)
+export(trsc_split)
+export(trsc_geometry)
+export(trsc_profile_coordinates)
+export(trsc_profile_distance)
+export(trsc_profile_equivalent)
+S3method(print,trsc_geometry)

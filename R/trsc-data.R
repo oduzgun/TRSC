@@ -92,6 +92,7 @@
 #'   transcript dated September 15, 2026 reports the raw-preparation checks
 #'   passing. The R version and sourced-file revision were not supplied;
 #'   independent local execution and the separate example remain pending.
+#' @export
 trsc_data <- function(data, unit, time, outcome, treated, donors,
                            intervention_time, pre_period, predictors,
                            period_step = 1) {

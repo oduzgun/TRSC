@@ -68,6 +68,7 @@
 #'   dated September 15, 2026 shows the split checks passing, including the
 #'   eight-date example. The R version and sourced-file revisions were not
 #'   supplied; an independent local rerun remains pending.
+#' @export
 trsc_split <- function(prepared, initial, horizon, step = 1) {
   # Check the object contract without reading or transforming panel values.
   fail <- function(message) stop(message, call. = FALSE)
