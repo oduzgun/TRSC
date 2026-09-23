@@ -60,11 +60,11 @@ test_that("mixing bound rejects invalid assumed beta coefficients", {
 
   expect_error(
     trsc_mixing_bound(fixture$plan, function(k) -0.1),
-    "finite value in \[0, 1\]"
+    "finite value in \\[0, 1\\]"
   )
   expect_error(
     trsc_mixing_bound(fixture$plan, function(k) 1.2),
-    "finite value in \[0, 1\]"
+    "finite value in \\[0, 1\\]"
   )
 })
 
