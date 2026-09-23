@@ -156,3 +156,27 @@ test_that("selection requires all candidates to share the same frozen fitting bl
     "same fitting block and cutoff"
   )
 })
+
+
+test_that("exact validation ties use the frozen candidate order deterministically", {
+  fixture <- make_selection_fixture()
+  first <- trsc_readout(fixture$fit, 1)
+  candidates <- list(first = first, second = first)
+
+  selection <- trsc_select(
+    fixture$prepared,
+    candidates,
+    validation_periods = 5:9
+  )
+
+  expect_identical(selection$selected_name, "first")
+  expect_identical(selection$diagnostics$exact_tie_count, 2L)
+  expect_identical(
+    selection$diagnostics$exact_tie_names,
+    c("first", "second")
+  )
+  expect_identical(
+    selection$diagnostics$tie_rule,
+    "first exact minimum in candidate order"
+  )
+})

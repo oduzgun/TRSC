@@ -271,9 +271,17 @@ trsc_select <- function(prepared, candidates, validation_periods,
   }, numeric(1))
   names(scores) <- candidate_names
 
-  selected_index <- which.min(scores)
+  minimum_score <- min(scores)
+  tied_index <- which(scores == minimum_score)
+  selected_index <- tied_index[1L]
   selected <- candidates[[selected_index]]
   names(candidates) <- candidate_names
+  tie_rule <- if (inherits(candidates, "trsc_candidate_library") &&
+                  !is.null(attr(candidates, "tie_rule"))) {
+    attr(candidates, "tie_rule")
+  } else {
+    "first exact minimum in candidate order"
+  }
 
   d <- validation_periods - target_period
   structure(
@@ -300,6 +308,9 @@ trsc_select <- function(prepared, candidates, validation_periods,
         signed_weights = any(omega < 0),
         chronological_separation_checked = TRUE,
         candidates_frozen = TRUE,
+        exact_tie_count = length(tied_index),
+        exact_tie_names = candidate_names[tied_index],
+        tie_rule = tie_rule,
         refit_performed = FALSE,
         theorem_assumptions_certified = FALSE
       )

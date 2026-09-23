@@ -12,8 +12,10 @@ Description: Research software for temporally regularized synthetic-control
     nonunique donor-coordinate representations. The current development
     version provides data preparation, chronological splitting, empirical
     predictive geometry, a representation-aware pre-treatment fitting layer,
-    terminal convex readouts, and frozen cutoff-targeted candidate selection.
-    Post-treatment causal identification is not yet part of the stable API.
+    theorem-aligned calibration/fitting/validation sample roles, terminal
+    convex readouts, frozen cutoff-targeted candidate selection, and explicit
+    dependent-panel coupling diagnostics. Post-treatment causal identification
+    is not yet part of the stable API.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
