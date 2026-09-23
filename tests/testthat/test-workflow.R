@@ -266,3 +266,39 @@ test_that("end-to-end workflow freezes before validation and never refits", {
     fixture$plan$fitting$periods
   )
 })
+
+
+test_that("high-level candidate library rejects unprovenanced geometry", {
+  fixture <- make_workflow_fixture()
+  unprovenanced <- trsc_geometry(
+    fixture$prepared$blocks$Y0[
+      fixture$plan$calibration$retained_index, , drop = FALSE
+    ]
+  )
+
+  expect_error(
+    trsc_candidate_library(
+      fixture$prepared,
+      fixture$plan,
+      q = 1,
+      kappa = 0.1,
+      bandwidths = 1,
+      geometry = unprovenanced
+    ),
+    "must carry calibration provenance matching plan"
+  )
+
+  provenanced <- trsc_calibration_geometry(
+    fixture$prepared, fixture$plan
+  )
+  expect_no_error(
+    trsc_candidate_library(
+      fixture$prepared,
+      fixture$plan,
+      q = 1,
+      kappa = 0.1,
+      bandwidths = 1,
+      geometry = provenanced
+    )
+  )
+})
