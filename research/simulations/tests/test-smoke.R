@@ -52,7 +52,7 @@ stopifnot(
   is.na(dup$selected$cutoff_raw_share_mse),
   all(is.na(dup$fit_metrics$raw_share_mse)),
   all(is.na(dup$benchmark_metrics$raw_share_mse)),
-  nrow(dup$benchmark_cutoff) == 4L,
+  nrow(dup$benchmark_cutoff) == 6L,
   all(is.finite(dup$benchmark_cutoff$cutoff_profile_loss)),
   all(is.finite(dup$benchmark_cutoff$cutoff_heldout_prediction_loss)),
   isFALSE(dup$metadata$post_treatment_used),
@@ -79,7 +79,7 @@ stopifnot(
   all(is.finite(smooth$fit_metrics$integrated_heldout_prediction_loss)),
   all(is.finite(smooth$benchmark_metrics$integrated_profile_loss)),
   all(is.finite(smooth$benchmark_metrics$integrated_heldout_prediction_loss)),
-  nrow(smooth$benchmark_cutoff) == 4L
+  nrow(smooth$benchmark_cutoff) == 6L
 )
 
 mismatch <- trsc_sim_scenario(
