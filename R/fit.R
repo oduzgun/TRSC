@@ -22,10 +22,11 @@
 #'   verify simplex feasibility of the numerical solution. The returned
 #'   weights are not clipped or renormalized.
 #'
-#' @return An object of class `trsc_fit`. Its primary fitted representation is
-#'   the predictive path stored in empirical quotient coordinates. Raw donor
-#'   weights are retained as one solver-selected simplex representation and
-#'   need not be unique.
+#' @return An object of class `trsc_fit`. The fitted relationship is retained
+#'   together with one solver-selected simplex lift. Coordinates induced by the
+#'   supplied geometry are stored as computational metric coordinates; they do
+#'   not certify the population quotient when the supplied geometry is learned
+#'   and singular. Raw donor weights need not be unique.
 #'
 #' @details The objective is the sum of pre-treatment squared residuals
 #'   and `kappa` times the supplied-geometry norm of the order-`q`
@@ -137,8 +138,8 @@ trsc_fit <- function(prepared, geometry, kappa, q = 1,
   roughness <- .trsc_temporal_energy(W, geometry, q)
   fit_loss <- sum(residuals^2)
   penalty <- kappa * roughness
-  profile <- geometry$B %*% W
-  colnames(profile) <- as.character(fitted_periods)
+  metric_coordinates <- geometry$B %*% W
+  colnames(metric_coordinates) <- as.character(fitted_periods)
 
   structure(
     list(
@@ -156,7 +157,7 @@ trsc_fit <- function(prepared, geometry, kappa, q = 1,
         geometry = "supplied",
         reference_law_certified = FALSE
       ),
-      predictive_path = profile,
+      metric_coordinates = metric_coordinates,
       weights = W,
       fitted_values = fitted_values,
       residuals = residuals,
