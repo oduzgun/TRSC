@@ -83,6 +83,8 @@ trsc_sim_run_one <- function(
     selected_kappa = workflow_metrics$cutoff$selected_kappa,
     selected_h = workflow_metrics$cutoff$selected_h,
     cutoff_profile_loss = workflow_metrics$cutoff$cutoff_profile_loss,
+    cutoff_heldout_prediction_loss =
+      workflow_metrics$cutoff$cutoff_heldout_prediction_loss,
     cutoff_raw_share_mse = workflow_metrics$cutoff$cutoff_raw_share_mse,
     validation_score = workflow_metrics$cutoff$validation_score,
     stringsAsFactors = FALSE
@@ -97,8 +99,8 @@ trsc_sim_run_one <- function(
   fit_rows <- fit_rows[, c(
     "scenario", "seed", "path_type", "representation_identified",
     "method", "fit", "q", "kappa",
-    "integrated_profile_loss", "raw_share_mse",
-    "training_rmse", "temporal_roughness"
+    "integrated_profile_loss", "integrated_heldout_prediction_loss",
+    "raw_share_mse", "training_rmse", "temporal_roughness"
   )]
 
   benchmark_path <- benchmark$path
@@ -109,8 +111,8 @@ trsc_sim_run_one <- function(
     scenario$representation_identified
   benchmark_path <- benchmark_path[, c(
     "scenario", "seed", "path_type", "representation_identified",
-    "method", "integrated_profile_loss", "raw_share_mse",
-    "training_rmse"
+    "method", "integrated_profile_loss", "integrated_heldout_prediction_loss",
+    "raw_share_mse", "training_rmse"
   )]
 
   benchmark_cutoff <- benchmark$cutoff
@@ -162,36 +164,75 @@ trsc_sim_run_grid <- function(
   }
 
   runs <- vector("list", length(scenarios) * length(seeds))
+  failures <- list()
   index <- 0L
+  failure_index <- 0L
   for (scenario_name in scenarios) {
     for (seed in seeds) {
       index <- index + 1L
-      runs[[index]] <- trsc_sim_run_one(
-        scenario_name = scenario_name,
-        seed = as.integer(seed),
-        ...
+      attempt <- tryCatch(
+        trsc_sim_run_one(
+          scenario_name = scenario_name,
+          seed = as.integer(seed),
+          ...
+        ),
+        error = function(e) e
       )
+      if (inherits(attempt, "error")) {
+        failure_index <- failure_index + 1L
+        failures[[failure_index]] <- data.frame(
+          scenario = scenario_name,
+          seed = as.integer(seed),
+          error_class = class(attempt)[1L],
+          message = conditionMessage(attempt),
+          stringsAsFactors = FALSE
+        )
+        runs[[index]] <- NULL
+      } else {
+        runs[[index]] <- attempt
+      }
     }
   }
 
-  selected <- do.call(rbind, lapply(runs, function(x) x[["selected"]]))
-  fit_metrics <- do.call(rbind, lapply(runs, function(x) x[["fit_metrics"]]))
-  benchmark_metrics <- do.call(rbind, lapply(runs, function(x) x[["benchmark_metrics"]]))
-  benchmark_cutoff <- do.call(rbind, lapply(runs, function(x) x[["benchmark_cutoff"]]))
-  rownames(selected) <- NULL
-  rownames(fit_metrics) <- NULL
-  rownames(benchmark_metrics) <- NULL
-  rownames(benchmark_cutoff) <- NULL
+  successful_runs <- Filter(Negate(is.null), runs)
+  bind_or_empty <- function(component) {
+    if (!length(successful_runs)) return(data.frame())
+    out <- do.call(rbind, lapply(successful_runs, function(x) x[[component]]))
+    rownames(out) <- NULL
+    out
+  }
+
+  selected <- bind_or_empty("selected")
+  fit_metrics <- bind_or_empty("fit_metrics")
+  benchmark_metrics <- bind_or_empty("benchmark_metrics")
+  benchmark_cutoff <- bind_or_empty("benchmark_cutoff")
+  failure_table <- if (length(failures)) {
+    out <- do.call(rbind, failures)
+    rownames(out) <- NULL
+    out
+  } else {
+    data.frame(
+      scenario = character(),
+      seed = integer(),
+      error_class = character(),
+      message = character(),
+      stringsAsFactors = FALSE
+    )
+  }
 
   result <- list(
     selected = selected,
     fit_metrics = fit_metrics,
     benchmark_metrics = benchmark_metrics,
     benchmark_cutoff = benchmark_cutoff,
+    failures = failure_table,
     runs = runs,
     metadata = list(
       scenarios = scenarios,
       seeds = as.integer(seeds),
+      attempted_runs = length(runs),
+      successful_runs = length(successful_runs),
+      failed_runs = nrow(failure_table),
       simulation_findings_claimed = FALSE,
       purpose = "research design and software discrimination"
     )
@@ -217,6 +258,11 @@ trsc_sim_run_grid <- function(
     utils::write.csv(
       benchmark_cutoff,
       file.path(output_dir, "benchmark_cutoff_metrics.csv"),
+      row.names = FALSE
+    )
+    utils::write.csv(
+      failure_table,
+      file.path(output_dir, "simulation_failures.csv"),
       row.names = FALSE
     )
     saveRDS(result$metadata, file.path(output_dir, "simulation_metadata.rds"))
