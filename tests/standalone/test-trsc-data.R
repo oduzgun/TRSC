@@ -150,5 +150,5 @@ isolated_prepared <- isolated$trsc_data(panel, "state", "year", "sales", "Target
                                           c("DonorA", "DonorB"), 2003, 2000:2002,
                                           c("sales", "income", "constant"))
 stopifnot(identical(isolated_prepared, prepared),
-          !exists("tvsc.blocks", envir = isolated, inherits = FALSE))
+          !exists("trsc_split", envir = isolated, inherits = FALSE))
 cat("All version-2 raw panel preparation checks passed.\n")
