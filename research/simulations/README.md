@@ -22,11 +22,23 @@ not to manufacture favorable examples. The implemented scenario labels are:
 - `weak_excitation`: the fitting design is nearly collinear while the
   independent reference distribution remains full-dimensional;
 - `reference_mismatch`: the calibration reference distribution differs from
-  later fitting/validation donor-state support.
+  later fitting/validation donor-state support;
+- `interior`: the true donor mixture stays strictly inside the simplex,
+  stressing the full-dimensional tangent regime;
+- `persistent_errors`: target innovations follow a persistent AR(1) process,
+  stressing covariance inflation outside the independent-noise benchmark;
+- `separated_face`: a paper-matched intrinsic hull
+  `conv{-u, u, v ± theta h_j}` with a stable exposed target edge and a
+  positive outward normal margin;
+- `vanishing_margin`: the same exposed-edge geometry with a deliberately
+  small normal margin, stressing the localization boundary;
+- `face_change`: an exact-representation path switching between two exposed
+  edges, explicitly outside any generic face-change theorem.
 
 The design therefore mirrors the paper's requested stress dimensions: exact and
 near redundancy, constant/affine/curved paths, abrupt changes, weak local
-excitation, and reference-law mismatch.
+excitation, reference-law mismatch, interior targets, separated faces,
+vanishing normal margins, face changes, and persistent errors.
 
 ## Primary losses
 
@@ -50,11 +62,38 @@ The current matched-information benchmarks are:
 - static simplex synthetic control using the same fitting outcomes;
 - period-specific simplex fitting (`kappa = 0`);
 - q = 1 Euclidean raw-share difference regularization;
-- q = 2 Euclidean raw-share difference regularization.
+- q = 2 Euclidean raw-share difference regularization;
+- a local Gaussian-kernel simplex varying-coefficient smoother, which estimates
+  a separate locally weighted simplex fit at each fitting date;
+- a coordinate L1 total-variation simplex path, included as a change-point /
+  discontinuity-oriented comparator.
 
-All four benchmarks receive both path metrics and an endpoint-based cutoff
-evaluation. The raw-share penalties are intentionally non-representation-invariant
+All six benchmarks receive both path metrics and an endpoint-based cutoff
+evaluation. The raw-share and total-variation coordinate penalties are
+intentionally non-representation-invariant
 comparators. They are research benchmarks, not package recommendations.
+
+## Structural and design diagnostics
+
+Each run now records fitting-design diagnostics separately from predictive loss:
+
+- donor Gram rank and minimum eigenvalue on the intact fitting block;
+- contrast Gram rank and minimum eigenvalue after differencing against one donor;
+- learned calibration-geometry rank;
+- population/reference Gram rank and minimum eigenvalue.
+
+These quantities are descriptive stress diagnostics. In particular, low
+empirical rank is not treated as evidence that omitted population directions are
+irrelevant.
+
+The harness also compares two **different validation targets** on the same
+frozen TRSC candidate library:
+
+1. the paper's signed local-linear cutoff-targeted selector;
+2. ordinary historical validation using unweighted mean squared error over the
+   retained validation dates.
+
+Their scores are not interpreted as estimates of the same risk target.
 
 ## Running one design
 
@@ -99,8 +138,12 @@ frozen.
 ## Interpretation rules
 
 - Do not infer causal effects: every design here is pre-treatment.
-- Do not call abrupt-path performance a guarantee for a bounded-variation class;
-  that class is not established by the current theory.
+- Do not call abrupt-path or face-change performance a guarantee for a
+  bounded-variation or generic changing-face class; those classes are not
+  established by the current theory.
+- Treat `separated_face` as theorem-matched only at the level of its stated
+  structural primitives; `vanishing_margin` intentionally weakens a key
+  localization condition.
 - Do not interpret low empirical Gram rank as evidence that omitted population
   directions are irrelevant.
 - Do not interpret raw-share instability under redundancy as predictive
