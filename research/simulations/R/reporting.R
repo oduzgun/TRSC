@@ -29,7 +29,10 @@
   }
   if (!nrow(data)) return(data.frame())
 
-  key <- interaction(data[groups], drop = TRUE, lex.order = TRUE)
+  key <- do.call(
+    interaction,
+    c(data[groups], list(drop = TRUE, lex.order = TRUE))
+  )
   index_groups <- split(seq_len(nrow(data)), key, drop = TRUE)
   z <- stats::qnorm(1 - (1 - conf_level) / 2)
 
@@ -81,7 +84,7 @@
           stringsAsFactors = FALSE
         )
       }
-      rows[[counter]] <- cbind(base, stats_row, stringsAsFactors = FALSE)
+      rows[[counter]] <- cbind(base, stats_row)
     }
   }
   out <- do.call(rbind, rows)
@@ -125,7 +128,10 @@ trsc_sim_selection_frequency <- function(result) {
   cols <- c(
     "scenario", "method", "selected_q", "selected_kappa", "selected_h"
   )
-  key <- interaction(x[cols], drop = TRUE, lex.order = TRUE)
+  key <- do.call(
+    interaction,
+    c(x[cols], list(drop = TRUE, lex.order = TRUE))
+  )
   pieces <- split(seq_len(nrow(x)), key, drop = TRUE)
   out <- do.call(rbind, lapply(pieces, function(idx) {
     base <- x[idx[1L], cols, drop = FALSE]
