@@ -12,11 +12,45 @@ predictive_path <- function(object, ...) {
 #' @rdname predictive_path
 #' @export
 predictive_path.trsc_fit <- function(object, ...) {
-  path <- object$predictive_path
-  attr(path, "periods") <- object$periods
-  attr(path, "geometry_rank") <- object$diagnostics$empirical_second_moment_rank
-  attr(path, "representation") <- "empirical predictive quotient coordinates"
-  path
+  structure(
+    list(
+      periods = object$periods,
+      donor_names = object$donor_names,
+      representative = object$weights,
+      metric_coordinates = object$metric_coordinates,
+      geometry = object$geometry,
+      diagnostics = list(
+        empirical_second_moment_rank =
+          object$diagnostics$empirical_second_moment_rank,
+        simplex_null_dimension_empirical =
+          object$diagnostics$simplex_null_dimension_empirical,
+        representation_unique_under_empirical_geometry =
+          object$diagnostics$representation_unique_under_empirical_geometry
+      )
+    ),
+    class = "trsc_predictive_path"
+  )
+}
+
+#' Print a TRSC predictive-path object
+#'
+#' @param x A `trsc_predictive_path` object.
+#' @param ... Unused.
+#' @export
+print.trsc_predictive_path <- function(x, ...) {
+  cat("TRSC fitted predictive relationship\n")
+  cat("  Dates: ", length(x$periods), "\n", sep = "")
+  cat("  Donors: ", length(x$donor_names), "\n", sep = "")
+  cat("  Supplied-geometry rank: ",
+      x$diagnostics$empirical_second_moment_rank, "\n", sep = "")
+  cat("  Empirical representation null dimension: ",
+      x$diagnostics$simplex_null_dimension_empirical, "\n", sep = "")
+  cat("  Raw lift unique under supplied empirical geometry: ",
+      if (isTRUE(x$diagnostics$representation_unique_under_empirical_geometry))
+        "yes" else "no", "\n", sep = "")
+  cat("  Note: metric coordinates are computational coordinates under the\n")
+  cat("        supplied geometry, not a population-identification certificate.\n")
+  invisible(x)
 }
 
 #' Extract one solver-selected donor representation
