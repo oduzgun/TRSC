@@ -113,6 +113,9 @@ trsc_sim_benchmark_metrics <- function(prepared, scenario, plan,
       integrated_profile_loss = trsc_sim_profile_loss(
         W, true_fit, scenario$Gamma_reference
       ),
+      integrated_heldout_prediction_loss = trsc_sim_profile_loss(
+        W, true_fit, scenario$Gamma_heldout
+      ),
       raw_share_mse = trsc_sim_share_loss(
         W, true_fit, scenario$representation_identified
       ),
@@ -144,18 +147,32 @@ trsc_sim_benchmark_metrics <- function(prepared, scenario, plan,
     )
   )
 
-  cutoff_metrics <- data.frame(
-    method = "static_simplex",
-    cutoff_profile_loss = trsc_sim_reference_prediction_loss(
-      static_cutoff, true_cutoff, scenario$reference_states
-    ),
-    cutoff_raw_share_mse = if (scenario$representation_identified) {
-      mean((static_cutoff - true_cutoff)^2)
-    } else {
-      NA_real_
-    },
-    stringsAsFactors = FALSE
+  endpoint_weights <- list(
+    static_simplex = static_cutoff,
+    period_specific = unclass(stats::weights(period_specific))[, ncol(period_specific$weights)],
+    raw_share_q1 = unclass(stats::weights(raw_q1))[, ncol(raw_q1$weights)],
+    raw_share_q2 = unclass(stats::weights(raw_q2))[, ncol(raw_q2$weights)]
   )
+
+  cutoff_metrics <- do.call(rbind, lapply(names(endpoint_weights), function(label) {
+    w <- endpoint_weights[[label]]
+    data.frame(
+      method = label,
+      cutoff_profile_loss = trsc_sim_reference_prediction_loss(
+        w, true_cutoff, scenario$reference_states
+      ),
+      cutoff_heldout_prediction_loss = trsc_sim_reference_prediction_loss(
+        w, true_cutoff, scenario$heldout_states
+      ),
+      cutoff_raw_share_mse = if (scenario$representation_identified) {
+        mean((w - true_cutoff)^2)
+      } else {
+        NA_real_
+      },
+      stringsAsFactors = FALSE
+    )
+  }))
+  rownames(cutoff_metrics) <- NULL
 
   list(
     path = path_metrics,
