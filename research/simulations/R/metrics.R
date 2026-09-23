@@ -59,6 +59,9 @@ trsc_sim_evaluate_workflow <- function(workflow, scenario) {
       integrated_profile_loss = trsc_sim_profile_loss(
         estimated, true_fit, scenario$Gamma_reference
       ),
+      integrated_heldout_prediction_loss = trsc_sim_profile_loss(
+        estimated, true_fit, scenario$Gamma_heldout
+      ),
       raw_share_mse = trsc_sim_share_loss(
         estimated, true_fit, scenario$representation_identified
       ),
@@ -79,6 +82,9 @@ trsc_sim_evaluate_workflow <- function(workflow, scenario) {
     selected_h = workflow$selected$candidate_specification$h,
     cutoff_profile_loss = trsc_sim_reference_prediction_loss(
       selected, true_cutoff, scenario$reference_states
+    ),
+    cutoff_heldout_prediction_loss = trsc_sim_reference_prediction_loss(
+      selected, true_cutoff, scenario$heldout_states
     ),
     cutoff_raw_share_mse = if (scenario$representation_identified) {
       mean((selected - true_cutoff)^2)
