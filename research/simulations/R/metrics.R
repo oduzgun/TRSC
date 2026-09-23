@@ -158,3 +158,31 @@ trsc_sim_selection_comparison <- function(prepared, workflow, scenario) {
     )
   )
 }
+
+
+trsc_sim_solver_diagnostics <- function(workflow, scenario) {
+  if (!inherits(workflow, "trsc_workflow") ||
+      !inherits(scenario, "trsc_sim_scenario")) {
+    stop("workflow and scenario are not compatible.", call. = FALSE)
+  }
+  fits <- attr(workflow$candidate_library, "fits")
+  out <- do.call(rbind, lapply(names(fits), function(name) {
+    fit <- fits[[name]]
+    data.frame(
+      scenario = scenario$scenario,
+      seed = scenario$seed,
+      fit = name,
+      q = fit$specification$q,
+      kappa = fit$specification$kappa,
+      solver_status = as.character(fit$solver$status),
+      iterations = as.integer(fit$solver$iterations),
+      primal_residual = as.numeric(fit$solver$primal_residual),
+      dual_residual = as.numeric(fit$solver$dual_residual),
+      maximum_simplex_violation =
+        as.numeric(fit$diagnostics$maximum_simplex_violation),
+      stringsAsFactors = FALSE
+    )
+  }))
+  rownames(out) <- NULL
+  out
+}
