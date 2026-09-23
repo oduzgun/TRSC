@@ -2,4 +2,4 @@
 ^research$
 ^validation$
 ^docs$
-^LICENSE\\.md$
+^LICENSE[.]md$
