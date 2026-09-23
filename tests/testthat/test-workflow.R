@@ -253,7 +253,10 @@ test_that("end-to-end workflow freezes before validation and never refits", {
     workflow$selection$validation_periods,
     fixture$plan$validation$retained_periods
   )
-  expect_true(workflow$specification$candidate_order_fixed_before_validation)
+  expect_true(
+    workflow$specification$candidate_order_fixed_before_validation_in_execution
+  )
+  expect_false(workflow$specification$prespecification_certified)
   expect_false(workflow$specification$rolling_refit)
   expect_false(workflow$specification$final_full_sample_refit)
   expect_false(workflow$diagnostics$calibration_target_outcomes_used)
