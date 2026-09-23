@@ -38,7 +38,7 @@ The stable implementation now includes the **pre-treatment convex fitting core**
 - `trsc_profile_equivalent()`: test empirical profile equivalence at a declared numerical tolerance.
 - internal common difference operators for (q=1) and (q=2).
 - `trsc_fit()`: simplex-constrained pre-treatment fitting under a supplied predictive geometry.
-- `predictive_path()`: primary fitted profile in empirical quotient coordinates.
+- `predictive_path()`: fitted predictive-relationship object carrying one numerical lift plus supplied-geometry coordinates; learned-metric null directions are not presented as population identification.
 - `weights()`: one solver-selected donor-coordinate representation, explicitly secondary.
 - standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.
 
