@@ -33,8 +33,11 @@ excitation, and reference-law mismatch.
 The principal simulation losses are representation-aware:
 
 1. integrated path profile loss under the known reference second moment;
-2. independent-reference cutoff prediction/profile loss;
-3. training reconstruction error, reported separately.
+2. integrated held-out prediction loss under an independent evaluation law;
+3. independent-reference cutoff prediction/profile loss;
+4. held-out cutoff prediction loss, which differs from the reference-law loss
+   in the support-mismatch design;
+5. training reconstruction error, reported separately.
 
 Raw donor-share mean squared error is returned only when the scenario explicitly
 marks the generating representation as identified. It is `NA` for the exact
@@ -49,7 +52,8 @@ The current matched-information benchmarks are:
 - q = 1 Euclidean raw-share difference regularization;
 - q = 2 Euclidean raw-share difference regularization.
 
-The raw-share penalties are intentionally non-representation-invariant
+All four benchmarks receive both path metrics and an endpoint-based cutoff
+evaluation. The raw-share penalties are intentionally non-representation-invariant
 comparators. They are research benchmarks, not package recommendations.
 
 ## Running one design
@@ -86,8 +90,11 @@ results <- trsc_sim_run_grid(
 ```
 
 The output directory is ignored by Git. Seeds, scenario labels and tuning grids
-are retained in the returned objects. Do not commit simulation results until the
-research design and reporting protocol are frozen.
+are retained in the returned objects. Failed Monte Carlo runs are retained in
+`simulation_failures.csv` and in the returned `failures` table; the grid does
+not silently discard them or abort after the first numerical failure. Do not
+commit simulation results until the research design and reporting protocol are
+frozen.
 
 ## Interpretation rules
 
