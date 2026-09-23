@@ -26,7 +26,7 @@ so a change in donor representation is measured through
 
 The estimator is intended to support temporal difference orders (q=1) and (q=2) without requiring (Gamma_P) to be invertible.
 
-The stable implementation now includes the **pre-treatment convex fitting core**. It does not yet include the paper's frozen candidate-selection/readout procedure and does not claim to deliver a post-treatment counterfactual, ATT, or treatment effect.
+The stable implementation now includes the **pre-treatment convex fitting core** and the paper's **frozen terminal-readout / cutoff-targeted selection layer**. It does not claim to deliver a post-treatment counterfactual, ATT, or treatment effect.
 
 ## Current stable foundation
 
@@ -40,7 +40,7 @@ The stable implementation now includes the **pre-treatment convex fitting core**
 - `trsc_fit()`: simplex-constrained pre-treatment fitting under a supplied predictive geometry.
 - `predictive_path()`: fitted predictive-relationship object carrying one numerical lift plus supplied-geometry coordinates; learned-metric null directions are not presented as population identification.
 - `weights()`: one solver-selected donor-coordinate representation, explicitly secondary.
-- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.\n- `trsc_diagnostics()`: descriptive fit/geometry/solver diagnostics with explicit non-certification labels.
+- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.\n- `trsc_diagnostics()`: descriptive fit/geometry/solver diagnostics with explicit non-certification labels.\n- `trsc_readout()` / `trsc_readout_library()`: frozen convex terminal tapers, including the endpoint and dyadic bandwidth library.\n- `trsc_select()`: signed local-linear cutoff-targeted validation over a frozen candidate library, with no final refit.
 
 Empirical rank, null dimension and representation diagnostics are **diagnostics only**. They do not verify population coercivity, calibration complexity, continuation assumptions or causal identification.
 
@@ -68,7 +68,7 @@ diagnostics
 experimental post-treatment identification layer
 ```
 
-The fitting core is implemented. Candidate/readout selection, cutoff-targeted validation and any post-treatment identification layer remain separate future stages.
+The fitting core and frozen cutoff-targeted readout/selection layer are implemented. The dependence-transfer utilities and any post-treatment identification layer remain separate future stages.
 
 ## Representation invariance
 
