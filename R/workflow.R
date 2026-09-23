@@ -190,7 +190,8 @@ trsc_sample_plan <- function(prepared,
         validation_thin = validation_thin,
         min_gap0 = min_gap0,
         min_gap1 = min_gap1,
-        deterministic = TRUE
+        explicit_inputs = TRUE,
+        data_independence_certified = FALSE
       ),
       diagnostics = list(
         calibration_count_matches_formula =
@@ -461,7 +462,8 @@ trsc_workflow <- function(prepared, plan, kappa,
         kappa = as.numeric(kappa),
         bandwidths = if (is.null(bandwidths)) "default_dyadic_plus_full"
                      else as.integer(bandwidths),
-        candidate_order_fixed_before_validation = TRUE,
+        candidate_order_fixed_before_validation_in_execution = TRUE,
+        prespecification_certified = FALSE,
         tie_rule = attr(library, "tie_rule"),
         rolling_refit = FALSE,
         final_full_sample_refit = FALSE
@@ -489,6 +491,7 @@ print.trsc_sample_plan <- function(x, ...) {
   cat("  g0 / g1 separations: ", x$gaps$g0_steps, " / ",
       x$gaps$g1_steps, "\n", sep = "")
   cat("  Target period: ", x$target_period, "\n", sep = "")
+  cat("  Input choices data-independence certified: no\n")
   cat("  Theorem assumptions certified: no\n")
   invisible(x)
 }
