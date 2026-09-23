@@ -14,19 +14,19 @@ This repository is under active methodological development and is currently priv
 
 The pre-treatment statistical theory distinguishes prediction-space geometry from arbitrary Euclidean geometry in donor coordinates. For donor state (X), the prediction metric is the uncentered second moment
 
-[
-\Gamma_P = E_P[XX^\top],
-]
+$
+\Gamma_P = E_P[XX^\top].
+$
 
 so a change in donor representation is measured through
 
-[
+$
 (w-v)^\top \Gamma_P (w-v).
-]
+$
 
 The estimator is intended to support temporal difference orders (q=1) and (q=2) without requiring (Gamma_P) to be invertible.
 
-The stable implementation now includes the **deployable pre-treatment procedure**: deterministic calibration/fitting/validation role construction, donor-only calibration geometry, the convex fitting core, frozen terminal readouts, cutoff-targeted candidate selection, and optional dependence-transfer diagnostics. It does not claim to deliver a post-treatment counterfactual, ATT, or treatment effect.
+The stable implementation now includes the **deployable pre-treatment procedure**: explicit calibration/fitting/validation role construction, donor-only calibration geometry, the convex fitting core, frozen terminal readouts, cutoff-targeted candidate selection, and optional dependence-transfer diagnostics. It does not claim to deliver a post-treatment counterfactual, ATT, or treatment effect.
 
 ## Current stable foundation
 
@@ -40,7 +40,10 @@ The stable implementation now includes the **deployable pre-treatment procedure*
 - `trsc_fit()`: simplex-constrained pre-treatment fitting under a supplied predictive geometry.
 - `predictive_path()`: fitted predictive-relationship object carrying one numerical lift plus supplied-geometry coordinates; learned-metric null directions are not presented as population identification.
 - `weights()`: one solver-selected donor-coordinate representation, explicitly secondary.
-- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.\n- `trsc_diagnostics()`: descriptive fit/geometry/solver diagnostics with explicit non-certification labels.\n- `trsc_readout()` / `trsc_readout_library()`: frozen convex terminal tapers, including the endpoint and dyadic bandwidth library.\n- `trsc_select()`: signed local-linear cutoff-targeted validation over a frozen candidate library, with no final refit.
+- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.
+- `trsc_diagnostics()`: descriptive fit/geometry/solver diagnostics with explicit non-certification labels.
+- `trsc_readout()` / `trsc_readout_library()`: frozen convex terminal tapers, including the endpoint and dyadic bandwidth library.
+- `trsc_select()`: signed local-linear cutoff-targeted validation over a frozen candidate library, with no final refit.
 - `trsc_sample_plan()`: explicit earlier calibration segment, intact fitting block, validation segment, deterministic thinning, and gaps.
 - `trsc_calibration_geometry()`: donor-only learned geometry from retained calibration dates.
 - `trsc_candidate_library()`: finite prespecified `(q, kappa, h)` library, fitting each `(q, kappa)` path once before validation.
@@ -101,14 +104,14 @@ The candidate specification, calibration rule, bandwidth library, and tie order 
 
 For a dependent panel, the software can calculate
 
-[
+$
 \Delta_{\mathrm{mix}}
 =
 (N_C-1)\beta(b_C)
 +\beta(g_0)
 +\beta(g_1)
-+(v-1)\beta(b_V),
-]
++(v-1)\beta(b_V).
+$
 
 or the explicit exponential-envelope spacing rule supplied by the paper. These calculations are conditional on user-supplied mixing assumptions; they are not empirical certification of beta-mixing.
 
@@ -140,6 +143,8 @@ GitHub Actions run:
 
 - the preserved standalone contracts for data preparation and chronological splitting;
 - package-level tests for predictive geometry, redundancy, donor permutation, singular fitting, the TRSC optimizer and common (q=1/q=2) temporal-difference infrastructure;
+- workflow tests for role separation, calibration provenance, validation leakage, frozen candidate construction, deterministic tie handling and no-refit semantics;
+- dependence-transfer tests for the exact four-term coupling expression and the explicit exponential-mixing spacing rule;
 - `R CMD check` after regenerating roxygen documentation.
 
 The repository contains no public release and no empirical application.
