@@ -23,8 +23,8 @@ test_that("trsc_fit recovers an exactly representable static relationship", {
   fit <- trsc_fit(prepared, geometry, kappa = 10, q = 1)
 
   expect_s3_class(fit, "trsc_fit")
-  expect_equal(stats::fitted(fit), target, tolerance = 2e-5)
-  expect_equal(colSums(stats::weights(fit)), rep(1, 8), tolerance = 2e-6)
+  expect_equal(unname(stats::fitted(fit)), target, tolerance = 2e-5)
+  expect_equal(unname(colSums(stats::weights(fit))), rep(1, 8), tolerance = 2e-6)
   expect_true(all(stats::weights(fit) >= -2e-6))
   expect_equal(fit$objective$fit_loss, 0, tolerance = 1e-8)
   expect_equal(fit$objective$temporal_roughness, 0, tolerance = 1e-8)
@@ -55,7 +55,7 @@ test_that("q = 2 leaves an affine predictive relationship unpenalized", {
   ))
 
   fit <- trsc_fit(prepared, geometry, kappa = 1000, q = 2)
-  expect_equal(stats::fitted(fit), target, tolerance = 5e-5)
+  expect_equal(unname(stats::fitted(fit)), target, tolerance = 5e-5)
   expect_equal(fit$objective$temporal_roughness, 0, tolerance = 5e-8)
 })
 
