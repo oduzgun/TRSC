@@ -21,7 +21,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
     Matrix (>= 1.6.1),
-    osqp (>= 1.0.0)
+    osqp (>= 1.0.0),
+    stats
 Suggests:
     roxygen2,
     testthat (>= 3.0.0)
