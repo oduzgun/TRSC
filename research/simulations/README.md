@@ -129,11 +129,46 @@ results <- trsc_sim_run_grid(
 ```
 
 The output directory is ignored by Git. Seeds, scenario labels and tuning grids
-are retained in the returned objects. Failed Monte Carlo runs are retained in
-`simulation_failures.csv` and in the returned `failures` table; the grid does
-not silently discard them or abort after the first numerical failure. Do not
+are retained in the returned objects. Selection comparisons, design
+diagnostics, and TRSC solver diagnostics retain the originating scenario and
+seed. Failed Monte Carlo runs are retained in `simulation_failures.csv` and in
+the returned `failures` table; the grid does not silently discard them or
+abort after the first numerical failure. Do not
 commit simulation results until the research design and reporting protocol are
 frozen.
+
+## Monte Carlo reporting protocol
+
+After a grid has completed, source `R/reporting.R` and construct a reporting
+object:
+
+```r
+source("research/simulations/R/reporting.R")
+report <- trsc_sim_mc_report(results)
+```
+
+The report contains:
+
+- mean loss estimates with Monte Carlo standard errors and normal-approximation
+  intervals for the simulation mean;
+- empirical 2.5% / 97.5% replication quantiles, reported separately from the
+  Monte Carlo interval;
+- per-scenario failure rates with an accounting check that successful and failed
+  runs sum to all attempted seeds;
+- cutoff-targeted versus ordinary-historical selection frequencies;
+- fitting-design and calibration-rank summaries;
+- TRSC solver iteration, primal/dual residual and simplex-feasibility
+  summaries;
+- a reproducibility manifest containing package version, R version, platform,
+  scenario names, seeds, run counts and session information.
+
+`trsc_sim_write_report_bundle()` writes these tables and the manifest to a
+chosen output directory. Report bundles and numerical findings remain
+uncommitted until the simulation design and reporting protocol are frozen.
+
+Monte Carlo intervals quantify simulation uncertainty for the reported
+experiment; they are not confidence intervals for the statistical estimand and
+do not certify theorems or causal identification.
 
 ## Interpretation rules
 
