@@ -11,10 +11,9 @@ Description: Research software for temporally regularized synthetic-control
     primary fitted object and allows singular predictive geometry and
     nonunique donor-coordinate representations. The current development
     version provides data preparation, chronological splitting, empirical
-    predictive geometry and a representation-aware pre-treatment fitting
-    layer for first- and second-order temporal regularization. Tuning
-    selection and post-treatment causal identification are not yet part of
-    the stable API.
+    predictive geometry, a representation-aware pre-treatment fitting layer,
+    terminal convex readouts, and frozen cutoff-targeted candidate selection.
+    Post-treatment causal identification is not yet part of the stable API.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
