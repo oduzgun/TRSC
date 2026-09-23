@@ -14,3 +14,4 @@ export(trsc_profile_coordinates)
 export(trsc_profile_distance)
 export(trsc_profile_equivalent)
 export(trsc_split)
+importFrom(stats,fitted)\nimportFrom(stats,residuals)\nimportFrom(stats,weights)\n
