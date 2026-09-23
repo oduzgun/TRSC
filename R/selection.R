@@ -229,8 +229,15 @@ trsc_select <- function(prepared, candidates, validation_periods,
   }
 
   donor_names <- colnames(prepared$blocks$Y0)
+  common_source_periods <- candidates[[1L]]$source_periods
+  common_cutoff <- candidates[[1L]]$cutoff
   for (i in seq_along(candidates)) {
     candidate <- candidates[[i]]
+    if (!identical(candidate$source_periods, common_source_periods) ||
+        !identical(candidate$cutoff, common_cutoff)) {
+      stop("All candidates must be frozen from the same fitting block and cutoff.",
+           call. = FALSE)
+    }
     if (!isTRUE(candidate$frozen)) {
       stop("Every candidate must be frozen before validation.", call. = FALSE)
     }
