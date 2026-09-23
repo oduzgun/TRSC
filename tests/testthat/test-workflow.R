@@ -117,7 +117,7 @@ test_that("candidate library freezes each q-kappa fit once and expands readouts"
   expect_length(library, 12L)
   grid <- attr(library, "grid")
   expect_equal(nrow(grid), 12L)
-  expect_identical(unique(grid$q), c(1, 2))
+  expect_identical(unique(grid$q), c(1L, 2L))
   expect_identical(unique(grid$kappa), c(0.05, 2))
   expect_identical(unique(grid$h), c(1L, 2L, 4L))
   expect_true(isTRUE(attr(library, "frozen")))
