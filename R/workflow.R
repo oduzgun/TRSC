@@ -300,6 +300,21 @@ trsc_candidate_library <- function(prepared, plan, kappa,
     geometry <- .trsc_align_geometry(
       geometry, colnames(prepared$blocks$Y0)
     )
+    provenance <- geometry$provenance
+    if (!is.list(provenance) ||
+        !identical(provenance$role, "calibration") ||
+        !identical(provenance$retained_periods,
+                   plan$calibration$retained_periods) ||
+        !identical(provenance$target_outcomes_used, FALSE) ||
+        !identical(provenance$fitting_outcomes_used, FALSE) ||
+        !identical(provenance$validation_outcomes_used, FALSE)) {
+      stop(
+        "A supplied geometry for trsc_candidate_library() must carry ",
+        "calibration provenance matching plan. Use ",
+        "trsc_calibration_geometry(prepared, plan) or leave geometry = NULL.",
+        call. = FALSE
+      )
+    }
   }
 
   fits <- list()
