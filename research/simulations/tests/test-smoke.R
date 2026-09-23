@@ -8,7 +8,8 @@ source("research/simulations/R/run-study.R")
 required <- c(
   "constant", "affine", "curved", "abrupt",
   "exact_duplication", "near_redundancy",
-  "weak_excitation", "reference_mismatch"
+  "weak_excitation", "reference_mismatch",
+  "interior", "persistent_errors"
 )
 
 for (name in required) {
@@ -109,3 +110,117 @@ stopifnot(
 )
 
 cat("TRSC simulation harness smoke checks passed.\n")
+
+
+# Structural boundary scenarios are checked separately because the theorem-face
+# construction can change the realized donor count.
+separated <- trsc_sim_scenario(
+  scenario = "separated_face",
+  T = 60,
+  J = 6,
+  seed = 41,
+  noise_sd = 0.05,
+  reference_size = 400
+)
+vanishing <- trsc_sim_scenario(
+  scenario = "vanishing_margin",
+  T = 60,
+  J = 6,
+  seed = 41,
+  noise_sd = 0.05,
+  reference_size = 400
+)
+face_change <- trsc_sim_scenario(
+  scenario = "face_change",
+  T = 60,
+  J = 6,
+  seed = 42,
+  noise_sd = 0.05,
+  reference_size = 400
+)
+interior <- trsc_sim_scenario(
+  scenario = "interior",
+  T = 60,
+  J = 6,
+  seed = 43,
+  noise_sd = 0.05,
+  reference_size = 400
+)
+
+stopifnot(
+  separated$structural$positive_normal_margin,
+  separated$structural$theorem_class,
+  !vanishing$structural$positive_normal_margin,
+  !vanishing$structural$theorem_class,
+  vanishing$structural$face_margin < separated$structural$face_margin,
+  all(colSums(separated$true_weights) == 1),
+  all(separated$true_weights[-c(1, 2), ] == 0),
+  face_change$structural$face_before != face_change$structural$face_after,
+  all(face_change$true_weights[1:2, 1:face_change$structural$switch_period] >= 0),
+  all(face_change$true_weights[3:4, 1:face_change$structural$switch_period] == 0),
+  all(face_change$true_weights[1:2, (face_change$structural$switch_period + 1):60] == 0),
+  min(interior$true_weights) > 0
+)
+
+structural_run <- trsc_sim_run_one(
+  scenario_name = "separated_face",
+  seed = 44,
+  q = c(1L, 2L),
+  kappa = c(0.1, 1),
+  bandwidths = c(1L, 2L),
+  T = 60,
+  J = 6,
+  noise_sd = 0.05,
+  reference_size = 400,
+  raw_benchmark_kappa = 0.3,
+  local_bandwidth = 4,
+  tv_lambda = 0.3
+)
+
+stopifnot(
+  nrow(structural_run$benchmark_metrics) == 6L,
+  nrow(structural_run$benchmark_cutoff) == 6L,
+  all(c("local_varying_simplex", "total_variation") %in%
+        structural_run$benchmark_metrics$method),
+  nrow(structural_run$selection_comparison) == 2L,
+  identical(
+    structural_run$selection_comparison$method,
+    c("cutoff_targeted_local_linear", "ordinary_historical_validation")
+  ),
+  nrow(structural_run$design_diagnostics) == 1L,
+  is.finite(structural_run$design_diagnostics$fitting_gram_min_eigenvalue),
+  is.finite(structural_run$design_diagnostics$reference_min_eigenvalue)
+)
+
+weak_run <- trsc_sim_run_one(
+  scenario_name = "weak_excitation",
+  seed = 45,
+  q = 1L,
+  kappa = c(0.1, 1),
+  bandwidths = c(1L, 2L),
+  T = 60,
+  J = 6,
+  noise_sd = 0.05,
+  reference_size = 400,
+  local_bandwidth = 4,
+  tv_lambda = 0.3
+)
+stopifnot(
+  weak_run$design_diagnostics$contrast_min_eigenvalue <
+    weak_run$design_diagnostics$reference_min_eigenvalue
+)
+
+# Direct solver sanity checks for the added research benchmarks.
+objects <- trsc_sim_prepare(interior)
+local_fit <- trsc_sim_local_varying_simplex(
+  objects$prepared, objects$plan$fitting$periods, bandwidth = 4
+)
+tv_fit <- trsc_sim_total_variation_fit(
+  objects$prepared, objects$plan$fitting$periods, lambda = 0.3
+)
+stopifnot(
+  max(abs(colSums(local_fit$weights) - 1)) < 1e-6,
+  min(local_fit$weights) > -1e-6,
+  max(abs(colSums(tv_fit$weights) - 1)) < 1e-6,
+  min(tv_fit$weights) > -1e-6
+)
