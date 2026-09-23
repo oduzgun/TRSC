@@ -79,9 +79,27 @@ trsc_sim_run_one <- function(
   selection_comparison <- trsc_sim_selection_comparison(
     objects$prepared, workflow, scenario
   )
+  selection_comparison$scenario <- scenario$scenario
+  selection_comparison$seed <- scenario$seed
+  selection_comparison$path_type <- scenario$path_type
+  selection_comparison$representation_identified <-
+    scenario$representation_identified
+  selection_comparison <- selection_comparison[, c(
+    "scenario", "seed", "path_type", "representation_identified",
+    setdiff(names(selection_comparison),
+            c("scenario", "seed", "path_type",
+              "representation_identified"))
+  )]
+
   design_diagnostics <- trsc_sim_design_diagnostics(
     objects$prepared, scenario, objects$plan
   )
+  design_diagnostics$seed <- scenario$seed
+  design_diagnostics <- design_diagnostics[, c(
+    "scenario", "seed",
+    setdiff(names(design_diagnostics), c("scenario", "seed"))
+  )]
+  solver_diagnostics <- trsc_sim_solver_diagnostics(workflow, scenario)
 
   selected_row <- data.frame(
     scenario = scenario$scenario,
@@ -143,6 +161,7 @@ trsc_sim_run_one <- function(
     benchmark_cutoff = benchmark_cutoff,
     selection_comparison = selection_comparison,
     design_diagnostics = design_diagnostics,
+    solver_diagnostics = solver_diagnostics,
     metadata = list(
       generated_at = "not recorded: deterministic research object",
       q = q,
@@ -224,6 +243,7 @@ trsc_sim_run_grid <- function(
   benchmark_cutoff <- bind_or_empty("benchmark_cutoff")
   selection_comparison <- bind_or_empty("selection_comparison")
   design_diagnostics <- bind_or_empty("design_diagnostics")
+  solver_diagnostics <- bind_or_empty("solver_diagnostics")
   failure_table <- if (length(failures)) {
     out <- do.call(rbind, failures)
     rownames(out) <- NULL
@@ -245,6 +265,7 @@ trsc_sim_run_grid <- function(
     benchmark_cutoff = benchmark_cutoff,
     selection_comparison = selection_comparison,
     design_diagnostics = design_diagnostics,
+    solver_diagnostics = solver_diagnostics,
     failures = failure_table,
     runs = runs,
     metadata = list(
@@ -288,6 +309,11 @@ trsc_sim_run_grid <- function(
     utils::write.csv(
       design_diagnostics,
       file.path(output_dir, "design_diagnostics.csv"),
+      row.names = FALSE
+    )
+    utils::write.csv(
+      solver_diagnostics,
+      file.path(output_dir, "solver_diagnostics.csv"),
       row.names = FALSE
     )
     utils::write.csv(

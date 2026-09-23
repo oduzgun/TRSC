@@ -4,6 +4,7 @@ source("research/simulations/R/scenarios.R")
 source("research/simulations/R/metrics.R")
 source("research/simulations/R/benchmarks.R")
 source("research/simulations/R/run-study.R")
+source("research/simulations/R/reporting.R")
 
 required <- c(
   "constant", "affine", "curved", "abrupt",
@@ -224,3 +225,60 @@ stopifnot(
   max(abs(colSums(tv_fit$weights) - 1)) < 1e-6,
   min(tv_fit$weights) > -1e-6
 )
+
+
+report_grid <- trsc_sim_run_grid(
+  scenarios = "constant",
+  seeds = 71:72,
+  q = 1L,
+  kappa = 0.2,
+  bandwidths = 1L,
+  T = 60,
+  J = 4,
+  noise_sd = 0.05,
+  reference_size = 250,
+  raw_benchmark_kappa = 0.2,
+  local_bandwidth = 4,
+  tv_lambda = 0.2
+)
+
+stopifnot(
+  report_grid$metadata$attempted_runs == 2L,
+  report_grid$metadata$successful_runs == 2L,
+  report_grid$metadata$failed_runs == 0L,
+  all(c("scenario", "seed") %in% names(report_grid$selection_comparison)),
+  all(c("scenario", "seed") %in% names(report_grid$design_diagnostics)),
+  all(c("scenario", "seed") %in% names(report_grid$solver_diagnostics))
+)
+
+report <- trsc_sim_mc_report(report_grid)
+stopifnot(
+  inherits(report, "trsc_sim_mc_report"),
+  nrow(report$failures) == 1L,
+  report$failures$accounting_complete,
+  report$failures$failure_rate == 0,
+  nrow(report$selected_cutoff) > 0L,
+  all(report$selected_cutoff$n == 2L |
+        report$selected_cutoff$metric == "cutoff_raw_share_mse"),
+  nrow(report$selection_frequency) > 0L,
+  isFALSE(report$manifest$simulation_findings_claimed),
+  !is.na(report$manifest$package_version)
+)
+
+frequency_sums <- aggregate(
+  proportion ~ scenario + method,
+  data = report$selection_frequency,
+  FUN = sum
+)
+stopifnot(max(abs(frequency_sums$proportion - 1)) < 1e-12)
+
+report_dir <- tempfile("trsc-report-")
+trsc_sim_write_report_bundle(report, report_dir)
+stopifnot(
+  file.exists(file.path(report_dir, "selected_cutoff.csv")),
+  file.exists(file.path(report_dir, "solver.csv")),
+  file.exists(file.path(report_dir, "failures.csv")),
+  file.exists(file.path(report_dir, "reproducibility_manifest.rds")),
+  file.exists(file.path(report_dir, "sessionInfo.txt"))
+)
+unlink(report_dir, recursive = TRUE)
