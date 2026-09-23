@@ -46,7 +46,9 @@ trsc_sim_run_one <- function(
     J = 6L,
     noise_sd = 0.20,
     reference_size = 4000L,
-    raw_benchmark_kappa = 0.3) {
+    raw_benchmark_kappa = 0.3,
+    local_bandwidth = 5,
+    tv_lambda = 1) {
 
   scenario <- trsc_sim_scenario(
     scenario = scenario_name,
@@ -70,7 +72,15 @@ trsc_sim_run_one <- function(
     objects$prepared,
     scenario,
     objects$plan,
-    raw_kappa = raw_benchmark_kappa
+    raw_kappa = raw_benchmark_kappa,
+    local_bandwidth = local_bandwidth,
+    tv_lambda = tv_lambda
+  )
+  selection_comparison <- trsc_sim_selection_comparison(
+    objects$prepared, workflow, scenario
+  )
+  design_diagnostics <- trsc_sim_design_diagnostics(
+    objects$prepared, scenario, objects$plan
   )
 
   selected_row <- data.frame(
@@ -131,6 +141,8 @@ trsc_sim_run_one <- function(
     fit_metrics = fit_rows,
     benchmark_metrics = benchmark_path,
     benchmark_cutoff = benchmark_cutoff,
+    selection_comparison = selection_comparison,
+    design_diagnostics = design_diagnostics,
     metadata = list(
       generated_at = "not recorded: deterministic research object",
       q = q,
@@ -138,6 +150,8 @@ trsc_sim_run_one <- function(
       bandwidths = if (is.null(bandwidths)) "default_dyadic_plus_full"
                    else bandwidths,
       raw_benchmark_kappa = raw_benchmark_kappa,
+      local_bandwidth = local_bandwidth,
+      tv_lambda = tv_lambda,
       post_treatment_used = FALSE,
       causal_effect_claim = FALSE
     )
@@ -148,7 +162,9 @@ trsc_sim_run_grid <- function(
     scenarios = c(
       "constant", "affine", "curved", "abrupt",
       "exact_duplication", "near_redundancy",
-      "weak_excitation", "reference_mismatch"
+      "weak_excitation", "reference_mismatch",
+      "interior", "persistent_errors",
+      "separated_face", "vanishing_margin", "face_change"
     ),
     seeds = 1:20,
     output_dir = NULL,
@@ -206,6 +222,8 @@ trsc_sim_run_grid <- function(
   fit_metrics <- bind_or_empty("fit_metrics")
   benchmark_metrics <- bind_or_empty("benchmark_metrics")
   benchmark_cutoff <- bind_or_empty("benchmark_cutoff")
+  selection_comparison <- bind_or_empty("selection_comparison")
+  design_diagnostics <- bind_or_empty("design_diagnostics")
   failure_table <- if (length(failures)) {
     out <- do.call(rbind, failures)
     rownames(out) <- NULL
@@ -225,6 +243,8 @@ trsc_sim_run_grid <- function(
     fit_metrics = fit_metrics,
     benchmark_metrics = benchmark_metrics,
     benchmark_cutoff = benchmark_cutoff,
+    selection_comparison = selection_comparison,
+    design_diagnostics = design_diagnostics,
     failures = failure_table,
     runs = runs,
     metadata = list(
@@ -258,6 +278,16 @@ trsc_sim_run_grid <- function(
     utils::write.csv(
       benchmark_cutoff,
       file.path(output_dir, "benchmark_cutoff_metrics.csv"),
+      row.names = FALSE
+    )
+    utils::write.csv(
+      selection_comparison,
+      file.path(output_dir, "selection_target_comparison.csv"),
+      row.names = FALSE
+    )
+    utils::write.csv(
+      design_diagnostics,
+      file.path(output_dir, "design_diagnostics.csv"),
       row.names = FALSE
     )
     utils::write.csv(
