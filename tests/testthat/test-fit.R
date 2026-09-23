@@ -263,6 +263,6 @@ test_that("kappa zero recovers period-specific feasible outcome fits", {
   ))
 
   fit <- trsc_fit(prepared, geometry, kappa = 0, q = 1)
-  expect_equal(stats::fitted(fit), target, tolerance = 2e-6)
+  expect_equal(unname(stats::fitted(fit)), target, tolerance = 2e-6)
   expect_equal(fit$objective$fit_loss, 0, tolerance = 1e-10)
 })
