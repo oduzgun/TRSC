@@ -52,5 +52,8 @@ jobs:
       - name: Run executable pre-treatment example
         run: Rscript --vanilla inst/examples/pre-treatment-workflow.R
 
+      - name: Run research simulation harness smoke checks
+        run: Rscript --vanilla research/simulations/tests/test-smoke.R
+
       - name: Check package
         run: R CMD check --no-manual TRSC_*.tar.gz
