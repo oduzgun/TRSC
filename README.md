@@ -40,7 +40,7 @@ The stable implementation now includes the **pre-treatment convex fitting core**
 - `trsc_fit()`: simplex-constrained pre-treatment fitting under a supplied predictive geometry.
 - `predictive_path()`: fitted predictive-relationship object carrying one numerical lift plus supplied-geometry coordinates; learned-metric null directions are not presented as population identification.
 - `weights()`: one solver-selected donor-coordinate representation, explicitly secondary.
-- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.
+- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.\n- `trsc_diagnostics()`: descriptive fit/geometry/solver diagnostics with explicit non-certification labels.
 
 Empirical rank, null dimension and representation diagnostics are **diagnostics only**. They do not verify population coercivity, calibration complexity, continuation assumptions or causal identification.
 
