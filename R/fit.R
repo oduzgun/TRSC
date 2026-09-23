@@ -28,10 +28,13 @@
 #'   not certify the population quotient when the supplied geometry is learned
 #'   and singular. Raw donor weights need not be unique.
 #'
-#' @details The objective is the sum of pre-treatment squared residuals
-#'   and `kappa` times the supplied-geometry norm of the order-`q`
-#'   temporal differences in the donor representation. Each date's donor
-#'   vector is constrained to the simplex.
+#' @details The fitting loss is the outcome-regression loss formed from the
+#'   prepared target outcome `Y1` and contemporaneous donor outcomes `Y0`.
+#'   Arbitrary matching-predictor rows in `X1`/`X0` are not treated as
+#'   independent outcome observations. The objective adds `kappa` times the
+#'   supplied-geometry norm of the order-`q` temporal differences in the
+#'   donor representation. Each date's donor vector is constrained to the
+#'   simplex.
 #'
 #'   The supplied geometry may be singular. No inverse of its second-moment
 #'   matrix is formed and no coordinate ridge is added to force uniqueness.
