@@ -1,6 +1,6 @@
 #' Extract empirical diagnostics from a TRSC fit
 #'
-#' @param object A `trsc_fit` object.
+#' @param object A `trsc_fit`, identified/confidence set, or support result.
 #'
 #' @return A `trsc_diagnostics` object containing numerical fit, geometry,
 #'   regularization and solver diagnostics.
@@ -11,6 +11,34 @@
 #'
 #' @export
 trsc_diagnostics <- function(object) {
+  if (inherits(object, "trsc_support")) {
+    return(structure(list(backend=object$backend,status=object$status,
+      primal_objective=object$primal_objective,certified_upper=object$upper,
+      numerical_certificate=object$certificate,primal_feasibility=object$primal_feasibility,
+      certified_gap=object$certified_gap,statistical_coverage=object$coverage,
+      causal_assumptions_verified=FALSE),class="trsc_set_diagnostics"))
+  }
+  if (inherits(object, "trsc_identified_set")) {
+    out<-list(type=object$type,H=object$H,structural_q=object$q,R=object$R,
+              empirical_rank=object$geometry$diagnostics$empirical_rank,
+              auxiliary_restrictions=length(object$auxiliary),
+              causal_assumptions_verified=FALSE)
+    if (inherits(object,"trsc_confidence_set")) {
+      ac<-object$anchor_certificate;eps<-.trsc_Q(object$geometry_certificate$epsilon)
+      t0<-2*.trsc_Q(ac$radius0)+2*eps
+      b<-t0
+      if(object$q==2) {
+        tv<-2*.trsc_Q(ac$radius_velocity)+4*eps
+        b<-.trsc_Q(.trsc_norm_up(c(t0+tv,if(object$H>=2)t0 else .trsc_Q(0))))
+      }
+      out$outer_radius_allowance<-.trsc_up(2*.trsc_Q(object$energy_allowance)+b)
+      out$components<-ac$components;out$coverage<-object$coverage
+      out$calibration_scope<-object$geometry_certificate$class_controlled
+      out$anchor_propagation<-trsc_anchor_propagation(ac,seq_len(object$H))
+      out$sandwich_scope<-"on the supplied common event; numerical endpoint enclosure error is separate"
+    }
+    return(structure(out,class="trsc_set_diagnostics"))
+  }
   if (!inherits(object, "trsc_fit") || !is.list(object)) {
     stop("object must be a trsc_fit object.", call. = FALSE)
   }
@@ -59,6 +87,13 @@ trsc_diagnostics <- function(object) {
     ),
     class = "trsc_diagnostics"
   )
+}
+
+#' @export
+print.trsc_set_diagnostics <- function(x, ...) {
+  cat("TRSC set/optimization diagnostics\n")
+  print(unclass(x))
+  invisible(x)
 }
 
 #' @export
