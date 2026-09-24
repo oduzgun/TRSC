@@ -8,12 +8,14 @@
 #'   observations in rows and donors in columns. At least two donor columns are
 #'   required.
 #' @param tolerance Optional nonnegative absolute eigenvalue tolerance used only
-#'   for numerical rank diagnostics and construction of quotient coordinates.
+#'   for numerical rank diagnostics only. No direction is removed from the
+#'   forward factor or the optimization problem.
 #'   If NULL, a scale-aware machine-precision tolerance is used.
 #'
 #' @return An object of class `trsc_geometry` containing the empirical
 #'   second-moment matrix `Gamma`, a factor `B` satisfying
-#'   `crossprod(B) = Gamma` up to numerical precision on retained directions,
+#'   `B = donor_states / sqrt(N)` satisfying `crossprod(B) = Gamma`
+#'   up to floating-point arithmetic, without spectral truncation,
 #'   and empirical rank diagnostics.
 #'
 #' @details No inverse of `Gamma` is formed. `representation_unique_empirical`
@@ -70,15 +72,9 @@ trsc_geometry <- function(donor_states, tolerance = NULL) {
 
   keep <- eig$values > tolerance
   rank <- sum(keep)
-  if (rank > 0L) {
-    vectors <- eig$vectors[, keep, drop = FALSE]
-    values <- eig$values[keep]
-    B <- diag(sqrt(values), nrow = rank) %*% t(vectors)
-  } else {
-    B <- matrix(numeric(0), nrow = 0L, ncol = J)
-  }
+  B <- X / sqrt(nrow(X))
   colnames(B) <- donor_names
-  rownames(B) <- if (rank) paste0("profile_", seq_len(rank)) else character(0)
+  rownames(B) <- paste0("reference_", seq_len(nrow(X)))
 
   affine_map <- rbind(B, rep(1, J))
   affine_rank <- qr(affine_map, tol = sqrt(.Machine$double.eps))$rank
@@ -137,12 +133,10 @@ trsc_profile_distance <- function(geometry, w, v) {
   w <- align(w, "w")
   v <- align(v, "v")
   d <- w - v
-  sq <- drop(crossprod(d, geometry$Gamma %*% d))
-  numerical_scale <- max(1, sum(abs(d))^2 * max(abs(geometry$Gamma)))
-  if (sq < -100 * .Machine$double.eps * numerical_scale) {
-    stop("Numerical failure while evaluating predictive distance.", call. = FALSE)
-  }
-  sqrt(max(0, sq))
+  z <- drop(geometry$B %*% d)
+  scale <- max(abs(z))
+  if (scale == 0) return(0)
+  scale * sqrt(sum((z / scale)^2))
 }
 
 #' Test empirical predictive-profile equivalence
