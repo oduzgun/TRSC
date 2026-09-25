@@ -3,3 +3,5 @@
 ^validation$
 ^docs$
 ^LICENSE[.]md$
+^TRSC_.*[.]tar[.]gz$
+^TRSC[.]Rcheck$

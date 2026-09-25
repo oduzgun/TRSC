@@ -1,0 +1,53 @@
+---
+title: "Persistence and level-velocity continuation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Persistence and level-velocity continuation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+The post-treatment order q is a maintained structural choice. Validation of a
+pre-treatment predictive q does not establish the causal continuation law.
+R is a root-energy sensitivity radius and is not learned from kappa.
+
+```{r}
+library(TRSC)
+g <- trsc_geometry(matrix(c(0, 1), 1, dimnames = list(NULL, c("A", "B"))))
+X <- matrix(rep(c(0, 1), 3), ncol = 2, byrow = TRUE,
+            dimnames = list(NULL, c("A", "B")))
+level <- c(A = .6, B = .4)
+previous <- c(A = .7, B = .3)
+persistent <- trsc_counterfactual_set(g, X, level, q = 1, R = 0)
+affine <- trsc_counterfactual_set(g, X, level, q = 2, R = 0, previous = previous)
+trsc_bounds(persistent)
+trsc_bounds(affine)
+```
+
+q=1 centers at 0.4; q=2 centers at 0.5, 0.6, 0.7. This example has
+evaluation-invariant profiles; generally fixed profiles still permit fibers.
+
+## Affine continuation can leave the hull
+
+```{r}
+minimum <- trsc_min_radius(g, c(A = 0, B = 1), q = 2, H = 2,
+                          previous = c(A = 1, B = 0))
+minimum[c("lower", "upper", "estimate", "status")]
+boundary <- trsc_counterfactual_set(g, X[1:2, ], c(A = 0, B = 1),
+                                  q = 2, R = 1, previous = c(A = 1, B = 0))
+trsc_sensitivity(boundary, c(.5, 1, 1.1, 2), a = c(1, -1))
+```
+
+The minimum root curvature is 1. Certified infeasibility is an explicit status,
+not an NA result. Close to the numerical minimum, inspect both certified
+minimum-radius bounds and solver status. A solver candidate alone cannot
+settle feasibility. Support enclosures can become less sharp when the solver
+does not supply a useful dual.
+
+For inference, q=1 has level uncertainty; q=2 also carries slope uncertainty,
+whose affine-center contribution grows with horizon. Hull constraints may
+truncate it. This is an informational burden, not a rule for preferring q=1.

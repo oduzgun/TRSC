@@ -1,0 +1,82 @@
+---
+title: "Honest outer inference"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Honest outer inference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+A population identified set expresses structural ambiguity even with unlimited
+data. A plug-in set replaces its inputs by estimates; it has no automatic
+coverage interpretation. An honest outer set additionally propagates supplied
+statistical uncertainty.
+
+```{r}
+library(TRSC)
+g <- trsc_geometry(matrix(c(0, 1), 1, dimnames = list(NULL, c("A", "B"))))
+X <- rbind(c(A = 0, B = 1), c(A = 0, B = 1))
+level <- c(A = .5, B = .5)
+previous <- c(A = .6, B = .4)
+plugin <- trsc_counterfactual_set(g, X, level, q = 2, R = .1, previous = previous)
+```
+
+## Supplied certificates
+
+These numbers are illustrative maintained bounds, not calibrated universal
+constants. In an application they require an analytic derivation or independent
+certificate. For q=2 the components bound the joint W norm.
+
+```{r}
+ac <- trsc_anchor_certificate(g, level, q = 2, previous = previous,
+  W = matrix(c(2, .5, .5, 1), 2),
+  components = c(estimation = .05, fitting_gap = .02, causal_gap = 0, numerical = 0),
+  failure_probability = .02, source = "Toy maintained joint boundary bounds")
+gc <- trsc_geometry_certificate(g, epsilon = .01, failure_probability = .01,
+  source = "Toy maintained absolute norm comparison on ALL simplex chords")
+outer <- trsc_confidence_set(X, ac, gc, q = 2, R = .1)
+outer
+trsc_bounds(plugin)
+trsc_bounds(outer)
+trsc_anchor_propagation(ac, 0:5)
+```
+
+Fitting-local calibration is insufficient for unrestricted future paths.
+The future root-energy allowance is
+\(2^{q-1}\sqrt{H}\epsilon_N\). Level and velocity share one probability
+event; they are not treated as independent intervals.
+
+```{r}
+trsc_sensitivity(outer, c(0, .1, .3), c(1, 1))
+endpoint <- trsc_confidence_support(outer, c(1, 1))
+trsc_diagnostics(endpoint)
+```
+
+The same nuisance event covers all directions, horizons and radii for the
+specified program. A finite candidate library needs simultaneous certificates;
+pass it through `library=`. With covariance-only Markov control, equal
+allocations can cost sqrt(M/alpha). No refit is covered.
+
+Default probability statements concern a fixed deployment experiment or
+unconditional random deployment. Conditional-on-realized-donors coverage needs
+certificates with that conditional scope. A rank diagnostic is not a certificate.
+
+## Numerical and causal boundaries
+
+The reported upper endpoint is a validated dual/residual enclosure or a
+donor-hull fallback. The approximate primal maximum is stored separately.
+A certified gap is available only with a verified feasible primal witness.
+Optimization certification does not verify the causal bridge.
+
+```{r}
+trsc_effect_interval(outer, c(1, 1), treated_mean_interval = c(2.9, 3.1),
+                     mean_failure_probability = .01)
+```
+
+The treated input is a confidence interval for a conditional-mean functional,
+not for a realized observation. The combined failure budget uses Bonferroni.
+No realized individual treatment effect is identified by this translation.

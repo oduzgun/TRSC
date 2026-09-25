@@ -1,7 +1,7 @@
 Package: TRSC
 Type: Package
 Title: Temporally Regularized Synthetic Controls
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R:
     person("Onur", "Düzgün",
            email = "77804721+oduzgun@users.noreply.github.com",
@@ -9,17 +9,17 @@ Authors@R:
 Description: Research software for temporally regularized synthetic-control
     predictive relationships. The package treats predictive profiles as the
     primary fitted object and allows singular predictive geometry and
-    nonunique donor-coordinate representations. The current development
-    version provides data preparation, chronological splitting, empirical
-    predictive geometry, a representation-aware pre-treatment fitting layer,
-    theorem-aligned calibration/fitting/validation sample roles, terminal
-    convex readouts, frozen cutoff-targeted candidate selection, and explicit
-    dependent-panel coupling diagnostics. Post-treatment causal identification
-    is not yet part of the stable API.
+    nonunique donor-coordinate representations. Provides chronological
+    calibration, fitting and frozen validation, evaluation fibers, dynamic
+    continuation sets, auxiliary refinements and outer confidence regions
+    under explicitly supplied causal and statistical certificates. Conic
+    support optimization retains certified numerical upper enclosures
+    separately from approximate primal optimizer values. Includes assumption
+    provenance and conditional-mean effect translations.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+RoxygenNote: 7.3.1
 Imports:
     ECOSolveR (>= 0.5.5),
     gmp (>= 0.7-4),

@@ -1,0 +1,61 @@
+---
+title: "Post-treatment identification"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Post-treatment identification}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+TRSC's pre-treatment projection does not imply a causal bridge. This guide
+maintains the untreated conditional-mean bridge and declared continuation
+restrictions. It concerns identified sets, not realized missing outcomes.
+
+```{r}
+library(TRSC)
+g <- trsc_geometry(matrix(c(0, 0, 1), 1,
+                         dimnames = list(NULL, c("A", "B", "C"))))
+x <- c(A = 0, B = 2, C = 1)
+fiber <- trsc_evaluation_set(g, x, representative = c(A = 1, B = 0, C = 0))
+fiber
+trsc_evaluation_width(fiber)
+trsc_point_identified(fiber)
+```
+
+Donors A and B are predictively identical, but deployment distinguishes them.
+Fixing the profile leaves the evaluation interval [0,2]. Compatible numerical
+lifts are retained, with feasibility diagnostics in each optimization result.
+
+```{r}
+z <- trsc_counterfactual_set(g, rbind(x, x), c(A = 1, B = 0, C = 0),
+                            q = 1, R = 0)
+trsc_bounds(z)
+trsc_support(z, c(1, -1))
+```
+
+The object is a plug-in set because the supplied inputs have not been
+certified as population inputs. The coordinates in `trsc_bounds()` form a
+rectangle enclosing projections; the lazy support oracle retains the actual
+joint restrictions.
+
+## A measurement must use the same latent witness
+
+Suppose a treatment-unaffected auxiliary measurement equals the same response
+functional here and its observed value is exactly 0.5 at each date. This is a
+toy exact measurement law, not a use of a noisy observation as a mean.
+
+```{r}
+refined <- trsc_auxiliary_refine(z,
+  maps = list(matrix(x, 1), matrix(x, 1)), values = list(.5, .5),
+  source = "Toy shared composition; known response and exact treatment exclusion")
+trsc_bounds(refined)
+```
+
+The constraints act on the same future weights as the continuation program.
+Donor identity matters in the augmented experiment. Duplicating all predictive,
+deployment and auxiliary characteristics preserves the set; duplicating only
+predictive characteristics can introduce genuine evaluation ambiguity.

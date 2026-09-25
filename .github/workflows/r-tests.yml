@@ -14,11 +14,8 @@ jobs:
       - name: Print R version
         run: Rscript --version
 
-      - name: Run TRSC data preparation contract
-        run: Rscript --vanilla tests/standalone/test-trsc-data.R
-
-      - name: Run TRSC chronological split contract
-        run: Rscript --vanilla tests/standalone/test-trsc-split.R
+      - name: Run standalone contracts
+        run: Rscript --vanilla tests/standalone/run-tests.R
 
       - name: Record session info
         run: Rscript --vanilla -e 'sessionInfo()'
@@ -40,7 +37,7 @@ jobs:
       - name: Generate documentation
         run: Rscript --vanilla -e 'roxygen2::roxygenise()'
 
-      - name: Run package tests
+      - name: Run package, identification, inference and theorem tests
         run: Rscript --vanilla -e 'testthat::test_local(".", reporter = "summary")'
 
       - name: Build package and vignettes
@@ -49,11 +46,25 @@ jobs:
       - name: Install built package
         run: R CMD INSTALL TRSC_*.tar.gz
 
-      - name: Run executable pre-treatment example
-        run: Rscript --vanilla inst/examples/pre-treatment-workflow.R
+      - name: Run executable workflows
+        run: |
+          Rscript --vanilla inst/examples/pre-treatment-workflow.R
+          Rscript --vanilla inst/examples/post-treatment-identification.R
+          Rscript --vanilla inst/examples/honest-inference.R
 
       - name: Run research simulation harness smoke checks
-        run: Rscript --vanilla research/simulations/tests/test-smoke.R
+        run: |
+          Rscript --vanilla research/simulations/tests/test-smoke.R
+          Rscript --vanilla research/simulations/tests/test-post-smoke.R
 
       - name: Check package
-        run: R CMD check --no-manual TRSC_*.tar.gz
+        run: |
+          R CMD check --no-manual TRSC_*.tar.gz
+          Rscript -e 'x <- readLines("TRSC.Rcheck/00check.log"); if (any(grepl("(ERROR|WARNING)", x))) stop("Package check reported errors or warnings")'
+
+      - name: Retain check logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: R-check-logs
+          path: TRSC.Rcheck/

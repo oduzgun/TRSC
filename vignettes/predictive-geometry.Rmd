@@ -51,7 +51,9 @@ distance at the supplied empirical geometry.
 ## Interpretation boundary
 
 The factor stored in `geometry$B` provides computational coordinates for the
-supplied empirical geometry. If that geometry was learned from a finite
+supplied empirical geometry. It is the full forward factor X/sqrt(N), with N
+rows; positive directions are not truncated by the diagnostic rank tolerance.
+If that geometry was learned from a finite
 calibration sample, its extra empirical null directions are not automatically
 population-null directions. Empirical rank and null dimension are therefore
 diagnostics, not population-identification certificates.

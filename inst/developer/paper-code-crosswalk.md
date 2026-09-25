@@ -5,7 +5,7 @@ Authority: Gate 5C `TRSC_Unified.tex`, SHA-256
 Baseline repository: `a0b228f5abb6f28f6f7f0aff2ea0b5775cac87e9`.
 This is an implementation contract, not a revision of the statistical theory.
 
-## Initial whole-repository audit
+## Baseline audit (historical, before this branch)
 
 The 53-file baseline has a coherent Estimator A QP and chronological pipeline,
 41 test blocks, three executable vignettes, standalone preparation tests and
@@ -19,13 +19,13 @@ are no evaluation LPs, continuation SOCPs, auxiliary constraints, confidence
 certificates or effect-functional APIs. Generated help files are absent.
 The current CI exercises only the earlier pipeline.
 
-One implementation defect needs correction: `geometry$B` drops positive
+One implementation defect was corrected: baseline `geometry$B` dropped positive
 eigenvalues below a numerical tolerance while the fit retains them in Gamma.
 Use the raw forward factor X/sqrt(N), retaining every supplied direction;
 rank tolerance remains diagnostic only. This is a software repair, not a
 new metric, ridge, full-rank assumption, or theory change.
 
-## Result map and implementation targets
+## Completed result map
 
 | Paper object/result | Public interface | Internal mechanism | Verification |
 |---|---|---|---|
@@ -43,6 +43,35 @@ new metric, ridge, full-rank assumption, or theory change.
 | Lemma M.2 | internal interpolation diagnostic in tests | direct finite differences | vector-valued deterministic inequality |
 | conditional-mean effect translation | `trsc_effect_interval` | certified endpoint translation | sign, probability and estimand tests |
 | numerical input contract | all certificate constructors | explicit source/type/event/failure metadata; no oracle substitution | missing/inconsistent/conditional-certificate tests |
+
+## Executable verification map
+
+All paths below are relative to `tests/testthat/` unless stated otherwise.
+The theory remains authoritative; tests verify implementations and fixtures,
+not theorems in arbitrary designs.
+
+| Result | Solver/helper | Exact test file |
+|---|---|---|
+| Proposition 3.1, Estimator A | existing `trsc_fit` OSQP assembly; full `geometry$B` | `test-fit.R`, `test-fit-invariance.R`, `test-conic-infrastructure.R` |
+| Theorem 8.1 | `.trsc_solve_lp`, `.trsc_add_equality` | `test-identification.R`: evaluation fibers, singleton and duplicates |
+| Theorem 9.1 | `.trsc_dynamic_program`, `.trsc_continuation_map`, `.trsc_solve_socp` | `test-identification.R`: independent grid enumeration, monotonicity and hull bounds |
+| q1 persistence | first-difference map with R=0 | `test-identification.R`: profile fixed, evaluations free |
+| q2 affine/minimum radius | second-difference map; `trsc_min_radius` epigraph | `test-identification.R`: affine path, exact Rmin=1, infeasibility below |
+| Auxiliary refinement | `.trsc_add_auxiliary` on the future witness | `test-identification.R`: narrowing and incompatible measurements |
+| Theorem 11.1 | `.trsc_confidence_program`, `.trsc_coverage` | `test-inference.R`: true-witness retention, missing/diagnostic/dimension/conditioning errors |
+| Corollary 11.2 | `trsc_anchor_propagation`, exact 2-by-2 W calculations | `test-inference.R`: joint level/velocity and horizon amplification |
+| Proposition 11.3 | `trsc_deployment_modulus`, two-lift conic program | `test-inference.R`: exact and near-null ambiguity; lower bound is theoretical, not estimated by the function |
+| Proposition M.1 | `trsc_diagnostics` outer-radius accounting | `test-stress.R`, `test-post-diagnostics.R`: sandwich fixtures and allowances |
+| Lemma M.2 | direct vector finite differences (no public estimator) | `test-stress.R`: stated inequality for k=2,...,20 |
+| Common path-event conversion | `trsc_anchor_from_risk` | `test-stress.R`: Markov normalization and one shared readout event |
+| Numerical upper endpoints | `.trsc_certify_upper`, `.trsc_primal_diagnostics` | `test-conic-infrastructure.R`: imperfect duals and failed-status fallback |
+| Conditional-mean translation | `trsc_effect_interval` | `test-inference.R`: endpoint signs, additional failure allocation, rejected realized estimand |
+| Simulation separation | observed-only runner versus truth-only metrics | `research/simulations/tests/test-post-smoke.R`: truth mutation and failure retention |
+
+No frozen paper file is modified. Analytic finite-sample constants are supplied
+through certificates, not estimated by the package. The crosswalk does not
+claim automatic verification of assumptions, minimax bounds or population
+metric recovery.
 
 ## Scientific boundaries
 

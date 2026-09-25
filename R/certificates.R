@@ -128,9 +128,9 @@ trsc_anchor_propagation <- function(certificate,horizons) {
 }
 
 #' Form a common-event anchor certificate from a supplied risk envelope
-#' @param geometry,center,q,source,previous,W,provenance,event_id,candidate_id,
-#'   covered_candidates,conditioning As in [trsc_anchor_certificate()].
-#' @param path_risk_bound Supplied bound Bbar for E[1_good ||error||^2]/n,
+#' @param geometry,center,q,source,previous,W,provenance,event_id,candidate_id As in [trsc_anchor_certificate()].
+#' @param covered_candidates,conditioning As in [trsc_anchor_certificate()].
+#' @param path_risk_bound Supplied bound Bbar for `E[1_good ||error||^2]/n`,
 #'   uniform over admissible approximate minimizers. Not an oracle point estimate.
 #' @param alpha_path Markov failure allocation on the common path event.
 #' @param fitting_failure Additional probability that the fitting good event fails.

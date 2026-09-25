@@ -1,0 +1,44 @@
+---
+title: "Deployment amplification"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Deployment amplification}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+Small pre-treatment predictive distance can coexist with a large
+post-treatment evaluation difference. This issue is distinct from temporal
+propagation of boundary error.
+
+```{r}
+library(TRSC)
+g <- trsc_geometry(matrix(c(0, 1e-5), 1, dimnames = list(NULL, c("A", "B"))))
+x <- c(A = 0, B = 1)
+trsc_profile_distance(g, c(A = 1, B = 0), c(A = 0, B = 1))
+trsc_deployment_modulus(g, x, epsilon = 1e-5)
+```
+
+The modulus maximizes evaluation difference over two simplex representatives
+within the stated predictive radius. Its certified upper enclosure is not
+itself a universal minimax lower bound: that interpretation requires admissible
+two-point statistical experiments in the maintained model class.
+
+```{r}
+null <- trsc_geometry(matrix(c(0, 0), 1, dimnames = list(NULL, c("A", "B"))))
+trsc_deployment_modulus(null, x, epsilon = 0)
+trsc_evaluation_set(null, x, representative = c(A = 1, B = 0))
+```
+
+At radius zero there is exact evaluation ambiguity. More calibration cannot
+remove a truly population-null fiber. Near-null directions instead create
+statistical instability. TRSC retains them; it does not remove weak directions
+through rank truncation to manufacture narrower intervals.
+
+Numerical enclosures may also be conservative when the optimizer is inaccurate.
+Inspect status, corrected dual bound and any certified gap separately from the
+scientific width.

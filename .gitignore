@@ -1,0 +1,8 @@
+*.tar.gz
+*.Rcheck/
+Rplots.pdf
+.Rhistory
+.RData
+inst/doc/
+research/simulations/results/
+research/simulations/output/

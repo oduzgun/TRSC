@@ -1,161 +1,139 @@
 # TRSC — Temporally Regularized Synthetic Controls
 
-TRSC is research software for **temporally regularized synthetic-control predictive relationships**.
+TRSC estimates evolving **predictive relationships**. Predictive profiles are
+primary; donor weights are coordinate representations that can be nonunique.
 
-The central design rule is:
+The package implements the frozen split–fit–freeze–validate procedure and
+post-treatment functions that compute **assumption-indexed identified sets
+and honest outer confidence regions under explicitly supplied continuation,
+bridge, and numerical-certificate conditions**. It does not automatically
+identify a causal effect.
 
-> **Predictive profiles are primary; raw donor coordinates are secondary representations.**
+## Workflow and API
 
-When donors are redundant, several simplex weight vectors can represent the same predictive relationship. TRSC therefore does not treat singular predictive geometry or nonunique raw donor weights as failures.
+| Layer | Functions |
+|---|---|
+| Prepare and split | `trsc_data()`, `trsc_split()`, `trsc_sample_plan()` |
+| Prediction geometry | `trsc_geometry()`, `trsc_calibration_geometry()`, `trsc_profile_coordinates()`, `trsc_profile_distance()`, `trsc_profile_equivalent()` |
+| Fit and freeze | `trsc_fit()`, `predictive_path()`, `trsc_readout()`, `trsc_readout_library()`, `trsc_candidate_library()`, `trsc_select()`, `trsc_workflow()` |
+| Evaluation identification | `trsc_evaluation_set()`, `trsc_evaluation_width()`, `trsc_point_identified()` |
+| Dynamic identification | `trsc_counterfactual_set()`, `trsc_support()`, `trsc_bounds()`, `trsc_min_radius()`, `trsc_sensitivity()` |
+| Structural measurements | `trsc_auxiliary_refine()` |
+| Inference certificates | `trsc_anchor_certificate()`, `trsc_anchor_from_risk()`, `trsc_geometry_certificate()`, `trsc_anchor_propagation()` |
+| Outer inference | `trsc_confidence_set()`, `trsc_confidence_support()`, `trsc_effect_interval()` |
+| Limits and diagnostics | `trsc_deployment_modulus()`, `trsc_diagnostics()`, `trsc_mixing_bound()`, `trsc_geometric_mixing_design()` |
 
-## Development status
+## Pre-treatment estimation
 
-This repository is under active methodological development and is currently private.
+Estimator A uses an uncentered prediction metric
+\(\Gamma_P=E[XX^\top]\) in the temporal penalty. The fitting QP uses OSQP;
+there is no raw-weight ridge or inverse of the prediction metric. Practical
+orders are q=1 and q=2.
 
-The pre-treatment statistical theory distinguishes prediction-space geometry from arbitrary Euclidean geometry in donor coordinates. For donor state (X), the prediction metric is the uncentered second moment
+The canonical workflow reserves an earlier donor-only calibration segment,
+an intact fitting block, and validation dates. Candidate orders, penalties,
+terminal triangular readouts and tie order are frozen before validation.
+The local-linear validation score targets the cutoff. There is no final
+full-sample refit. `trsc_split()` remains an earlier expanding-window utility;
+`trsc_sample_plan()` supplies the canonical role separation.
 
-```math
-\Gamma_P = E_P[XX^\top].
+The forward factor `geometry$B = X/sqrt(N)` retains all supplied directions.
+Numerical rank tolerance is diagnostic only. Its row dimension is N, rather
+than a truncated estimated rank; clients should use profile helpers rather
+than assume a minimal coordinate dimension.
+
+## Post-treatment identification
+
+```r
+library(TRSC)
+g <- trsc_geometry(matrix(c(0, 0, 1), 1,
+                         dimnames = list(NULL, c("A", "B", "C"))))
+x <- c(A = 0, B = 2, C = 1)
+trsc_evaluation_set(g, x, representative = c(A = 1, B = 0, C = 0))
+
+z <- trsc_counterfactual_set(g, rbind(x, x),
+                            anchor = c(A = 1, B = 0, C = 0),
+                            q = 1, R = 0)
+trsc_bounds(z)
+trsc_support(z, c(1, -1))
 ```
 
-so a change in donor representation is measured through
+This is a **plug-in identified set**, not a confidence set. Calling
+`type="population"` asserts that the supplied inputs really are population
+geometry and causal boundary profiles; it does not estimate them.
 
-```math
-(w-v)^\top \Gamma_P (w-v).
+Structural q and root-energy radius R are explicit. They are never inherited
+from selected predictive q or inferred from kappa. q=1 at R=0 fixes the
+predictive profile; evaluations can still vary among compatible lifts.
+q=2 uses the preceding profile and cutoff level. Its affine path may leave
+the hull, requiring a positive `trsc_min_radius()`. Below that radius,
+a certified infeasible support problem returns an explicit status and -Inf.
+
+An auxiliary restriction must have a shared-composition interpretation,
+identified response maps and treatment exclusion (or a supplied deterministic
+error bound). It intersects the **same latent path** before projection.
+Intersecting separately computed outcome intervals is not equivalent.
+
+## Honest inference and numerical certificates
+
+An outer confidence set requires an anchor certificate and an **all-simplex-
+chord** geometry certificate. Fitting-local calibration and empirical rank
+diagnostics do not supply the latter. Anchor components separate estimation,
+fitting-to-cutoff transfer, predictive-to-causal transfer and numerical error.
+q=2 retains a joint W-weighted level–velocity region.
+
+Certificate constructors check dimensions, provenance and probability
+bookkeeping. They do not establish their supplied bounds. Unknown risk
+envelopes, covariance/coercivity constants, transfer bounds and mixing
+coefficients must be maintained numerical bounds or independently certified.
+`diagnostic_only` inputs cannot support nominal coverage.
+
+A common finite-library event allows validation selection without an extra
+data split or independence assertion. It does not cover a later refit.
+Default coverage is for fixed deployment experiments or unconditional random
+deployment. Conditional-on-deployment requests require conditional certificates.
+R remains structural sensitivity, distinct from the sampling enlargement.
+
+ECOS produces numerical candidates for LP/SOCP problems. **An approximate
+primal maximum is never reported as an honest upper endpoint.** Upper
+enclosures use exact GMP rational arithmetic to validate cone duals and
+correct their stationarity residual over simplex blocks. If no useful dual
+is available, a donor-hull bound remains valid but can be wide. A numerical
+certificate is conditional on the supplied mathematical program; it does not
+validate statistical or causal assumptions. See
+[the certification contract](inst/developer/NUMERICAL_CERTIFICATION.md).
+
+`trsc_effect_interval()` translates a counterfactual confidence set using
+a supplied treated **conditional mean functional**, or its confidence
+interval. Observed treated realizations are not silently treated as means.
+
+## Guides and examples
+
+Seven executable vignettes cover the pre-treatment workflow, predictive
+geometry, nonunique weights, post-treatment identification, continuation
+orders, honest inference, and deployment amplification. Run:
+
+```sh
+Rscript inst/examples/pre-treatment-workflow.R
+Rscript inst/examples/post-treatment-identification.R
+Rscript inst/examples/honest-inference.R
 ```
 
-The estimator is intended to support temporal difference orders (q=1) and (q=2) without requiring (Gamma_P) to be invertible.
+## Verification and simulation readiness
 
-The stable implementation now includes the **deployable pre-treatment procedure**: explicit calibration/fitting/validation role construction, donor-only calibration geometry, the convex fitting core, frozen terminal readouts, cutoff-targeted candidate selection, and optional dependence-transfer diagnostics. It does not claim to deliver a post-treatment counterfactual, ATT, or treatment effect.
+The test suite checks geometry, frozen selection, analytic identification
+fixtures, same-witness outer inclusion, numerical certificates and twenty
+software stress cases. GitHub Actions run standalone contracts, package
+tests, examples, all vignettes, research smoke checks and R CMD check.
 
-## Current stable foundation
+`research/simulations/` retains the existing thirteen pre-treatment scenarios,
+six benchmark families and failure/reporting machinery. A separate
+post-treatment extension separates observable inputs from truth, and a
+[predeclared simulation design](research/simulations/SIMULATION_DESIGN.md)
+covers identification, inference and out-of-theory stress. Smoke runs validate
+software only. No large Monte Carlo findings or empirical application are
+claimed.
 
-- `trsc_data()`: validate and retain the declared raw panel and integrated raw blocks.
-- `trsc_split()`: construct expanding chronological split assignments.
-- `trsc_geometry()`: construct an empirical uncentered predictive geometry without inverting it.
-- `trsc_profile_coordinates()`: map donor coordinates to empirical quotient coordinates.
-- `trsc_profile_distance()`: evaluate predictive distance under the empirical geometry.
-- `trsc_profile_equivalent()`: test empirical profile equivalence at a declared numerical tolerance.
-- internal common difference operators for (q=1) and (q=2).
-- `trsc_fit()`: simplex-constrained pre-treatment fitting under a supplied predictive geometry.
-- `predictive_path()`: fitted predictive-relationship object carrying one numerical lift plus supplied-geometry coordinates; learned-metric null directions are not presented as population identification.
-- `weights()`: one solver-selected donor-coordinate representation, explicitly secondary.
-- standard `fitted()`, `residuals()` and `summary()` methods for fitted objects.
-- `trsc_diagnostics()`: descriptive fit/geometry/solver diagnostics with explicit non-certification labels.
-- `trsc_readout()` / `trsc_readout_library()`: frozen convex terminal tapers, including the endpoint and dyadic bandwidth library.
-- `trsc_select()`: signed local-linear cutoff-targeted validation over a frozen candidate library, with no final refit.
-- `trsc_sample_plan()`: explicit earlier calibration segment, intact fitting block, validation segment, deterministic thinning, and gaps.
-- `trsc_calibration_geometry()`: donor-only learned geometry from retained calibration dates.
-- `trsc_candidate_library()`: finite prespecified `(q, kappa, h)` library, fitting each `(q, kappa)` path once before validation.
-- `trsc_workflow()`: end-to-end pre-treatment calibration → fit → freeze → validate orchestration.
-- `trsc_mixing_bound()`: evaluate the paper's four-term coupling bound under a supplied beta-mixing coefficient function.
-- `trsc_geometric_mixing_design()`: compute the paper's conservative thinning/gap choices under an assumed exponential beta-mixing envelope.
-
-Empirical rank, null dimension and representation diagnostics are **diagnostics only**. They do not verify population coercivity, calibration complexity, continuation assumptions or causal identification.
-
-## Pipeline
-
-The intended development pipeline is
-
-```text
-data preparation
-    ↓
-chronological sample construction
-    ↓
-preprocessing
-    ↓
-predictive geometry
-    ↓
-representation-invariant TRSC fit
-    ↓
-candidate / tuning selection
-    ↓
-predictive path
-    ↓
-diagnostics
-    ↓
-experimental post-treatment identification layer
-```
-
-The deployable pre-treatment workflow is implemented through frozen cutoff selection. Dependence-transfer arithmetic is available as an assumption-driven diagnostic; the package does not estimate or certify mixing. Any post-treatment identification layer remains a separate future stage.
-
-## Deployable pre-treatment workflow
-
-The theorem-aligned workflow keeps the data roles explicit:
-
-```text
-earlier raw calibration segment
-    ↓ deterministic thinning
-retained donor calibration states
-    ↓
-learned predictive geometry
-    ↓ gap g0
-intact contiguous fitting block
-    ↓
-finite (q, kappa) fit library
-    ↓ frozen terminal h-readouts
-    ↓ gap g1
-retained validation dates
-    ↓ signed local-linear cutoff score
-selected frozen cutoff relationship
-```
-
-The candidate specification, calibration rule, bandwidth library, and tie order are fixed before validation is scored. There is no rolling refit and no final full-sample refit in this workflow.
-
-For a dependent panel, the software can calculate
-
-```math
-\Delta_{\mathrm{mix}}
-=
-(N_C-1)\beta(b_C)
-+\beta(g_0)
-+\beta(g_1)
-+(v-1)\beta(b_V).
-```
-
-or the explicit exponential-envelope spacing rule supplied by the paper. These calculations are conditional on user-supplied mixing assumptions; they are not empirical certification of beta-mixing.
-
-## Guides
-
-The private development package includes three executable vignettes:
-
-- `trsc-introduction`: the full calibration → fit → freeze → validate pre-treatment workflow;
-- `predictive-geometry`: singular uncentered prediction geometry and empirical quotient diagnostics;
-- `nonunique-weights`: why different simplex donor coordinates can represent the same predictive relationship.
-
-An additional executable script is stored at
-`inst/examples/pre-treatment-workflow.R`.
-
-## Representation invariance
-
-For two donor representations (w) and (v), zero predictive distance means they are equivalent at the geometry's fitted resolution. Adding or duplicating a predictively redundant donor may change a numerical weight vector while leaving the predictive profile unchanged.
-
-The package exposes raw weights only as solver-selected coordinates. The optimizer does not add an identity ridge or other coordinate-based tie-break to manufacture uniqueness. If a numerical tie-break is introduced later for reproducibility, it will be documented as a **computational convention**, not as an identification result.
-
-## Post-treatment boundary
-
-Post-treatment work remains experimental. The theory currently separates:
-
-1. continuation of the predictive-profile path;
-2. ambiguity in evaluating a profile at an observed post-treatment donor state;
-3. assumptions linking equivalent donor lifts across post-treatment dates.
-
-No stable high-level function named `trsc_counterfactual()`, `trsc_treatment_effect()` or `trsc_att()` is provided.
-
-Experimental work belongs under `research/` until these identification choices are frozen.
-
-## Legacy code
-
-Earlier TVSC scripts for version-1 blocks/scaling/metrics and the version-2 `tvsc.vmetrics()` architecture are preserved under `research/legacy/`. They are retained for traceability but are not loaded by the TRSC package because the current theory makes predictive geometry, rather than the earlier predictor-metric abstraction, the central object.
-
-## Validation
-
-GitHub Actions run:
-
-- the preserved standalone contracts for data preparation and chronological splitting;
-- package-level tests for predictive geometry, redundancy, donor permutation, singular fitting, the TRSC optimizer and common (q=1/q=2) temporal-difference infrastructure;
-- workflow tests for role separation, calibration provenance, validation leakage, frozen candidate construction, deterministic tie handling and no-refit semantics;
-- dependence-transfer tests for the exact four-term coupling expression and the explicit exponential-mixing spacing rule;
-- `R CMD check` after regenerating roxygen documentation.
-
-The repository contains no public release and no empirical application.
+The [paper-code crosswalk](inst/developer/paper-code-crosswalk.md) records
+the frozen results, helpers and tests. Earlier development scripts remain
+excluded under `research/legacy/`; they are not loaded by the package.

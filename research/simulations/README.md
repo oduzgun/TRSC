@@ -172,7 +172,9 @@ do not certify theorems or causal identification.
 
 ## Interpretation rules
 
-- Do not infer causal effects: every design here is pre-treatment.
+- The original scenarios below are pre-treatment predictive experiments. Only
+  the separately declared post-treatment extension maintains a causal bridge;
+  neither layer validates that bridge for an application.
 - Do not call abrupt-path or face-change performance a guarantee for a
   bounded-variation or generic changing-face class; those classes are not
   established by the current theory.
@@ -187,3 +189,29 @@ do not certify theorems or causal identification.
   applied comparably across methods.
 - Unsuccessful fits and numerical issues must be retained in eventual Monte
   Carlo reporting rather than silently discarded.
+# Post-treatment extension
+
+`SIMULATION_DESIGN.md` freezes the planned estimator, identification, inference
+and stress comparisons before large execution. `R/post-treatment.R` adds
+observable/truth-separated DGPs and runners; it does not replace the original
+thirteen scenarios or six benchmark families below.
+
+Run only software smoke checks in this gate:
+
+```r
+source("research/simulations/R/post-treatment.R")
+d <- trsc_sim_post_scenario("persistence", T=60, J=3, H=2)
+protocol <- trsc_sim_post_protocol(q=1, R=0)
+fit <- trsc_sim_post_feasible(d$observed, protocol)
+trsc_sim_post_metrics(fit, d$truth)
+```
+
+The feasible runner accepts observables and predeclared numerical bounds only.
+Oracle and semi-feasible geometry uses are separately named. Default finite
+bounds are deliberately conservative; they do not establish an informative
+data-driven calibration rule. Numerical population supports are enclosures,
+not automatically exact truth. Whole-set sufficient-event frequency is not
+the same as exact whole-set coverage. Keep unresolved comparisons unresolved.
+
+`tests/test-post-smoke.R` includes a truth-mutation regression check. Large
+grids are intentionally absent from CI and from this package-completion run.
