@@ -18,6 +18,16 @@ stopifnot(any(cells$panel=="E1"&cells$J_requested==120),any(cells$panel=="P2"&ce
 fr<-cells[cells$panel=="P0"&cells$scenario=="full_rank"&cells$structural_q==1&cells$radius_rule=="rmin",]
 stopifnot(nrow(fr)==1,fr$rank_requested==3,fr$rank_effective==10,grepl("forces effective rank",fr$generator_override))
 d<-trsc_sim_post_scenario("full_rank",seed=11,T=60,J=10,H=2,rank=3);stopifnot(identical(.trsc_verify_dimensions(fr,d),list(J=10L,rank=10L)))
+ea<-cells[cells$panel=="P0"&cells$scenario=="exact_ambiguity"&cells$structural_q==1&
+          cells$radius_rule=="rmin",]
+stopifnot(nrow(ea)==1,ea$rank_requested==3,ea$rank_effective==2,
+          grepl("effective rank=2",ea$generator_override,fixed=TRUE))
+dea<-trsc_sim_post_scenario("exact_ambiguity",seed=11,T=60,J=10,H=2,rank=3)
+stopifnot(identical(.trsc_verify_dimensions(ea,dea),list(J=10L,rank=2L)))
+nr<-cells[cells$panel=="P2"&cells$scenario=="near_redundancy"&cells$near_distance==0.1,]
+stopifnot(nrow(nr)==1,nr$rank_requested==3,nr$rank_effective==2)
+dnr<-trsc_sim_post_scenario("near_redundancy",seed=11,T=60,J=10,H=2,rank=3,near_distance=.1)
+stopifnot(identical(.trsc_verify_dimensions(nr,dnr),list(J=10L,rank=2L)))
 fc<-cells[cells$panel=="E0"&cells$scenario=="face_change",];stopifnot(fc$J_requested==10,fc$J_effective==4)
 dx<-trsc_sim_scenario("face_change",T=60,J=10,seed=11,reference_size=100);stopifnot(dx$J==4L)
 ed<-cells[cells$panel=="E0"&cells$scenario=="exact_duplication",];stopifnot(ed$J_effective==11)
