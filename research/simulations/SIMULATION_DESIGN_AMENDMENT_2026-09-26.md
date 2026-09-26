@@ -12,7 +12,7 @@ The nested predictive libraries are frozen in `FROZEN_CANDIDATE_LIBRARIES.csv`: 
 
 ## Frozen registries
 
-- `FROZEN_CELL_REGISTRY.csv`: SHA-256 `89181ec928012f3424e5980d540b8af1d89a23be83afe9d2edf1ae9e367b5b91`; 179 cells; 73,400 attempts.
+- `FROZEN_CELL_REGISTRY.csv`: SHA-256 `f1ddc2aba196641a04874ac75eadcfd621e45d72bb0902699f7bf8afd60dde20`; 179 cells; 73,400 attempts.
 - `FROZEN_CANDIDATE_LIBRARIES.csv`: SHA-256 `8f0a00b3ce3aef2ac294ab9946f2701f7977730ab9fa09038df0cb51e80f1be5`; 41 ordered membership rows.
 - `FROZEN_DEPLOYMENT_EPSILON.csv`: SHA-256 `e5513f30939373cb98edfff718d2e74805095d97635741f407baf3abd029c017`; 5 reporting multipliers.
 
@@ -42,3 +42,8 @@ The executable registry gate and the nontrivial nominal-inference gate are separ
 ## Immutability
 
 After scientific execution begins, these registries are immutable. Any later change requires a dated amendment retaining the original registries and all prior outputs. Unsupported and failed cells remain in attempted-repetition accounting.
+
+
+## Pre-results effective-rank correction
+
+Before scientific execution, the registry's `rank_effective` field was audited against the generated population predictive geometry rather than the latent-dimension input. The post-treatment generators `exact_ambiguity`, `near_redundancy`, and `weak_excitation` with requested rank 3 intentionally overwrite one factor-loading direction, so their actual population predictive rank is 2. The 15 affected P0/P2 rows now record `rank_requested=3`, `rank_effective=2`, and an explicit generator-override note. This changes registry metadata and its hash only; it does not change generator code, DGP values, seeds, cells, repetitions, or any result. No scientific repetitions had been executed when this correction was frozen.
