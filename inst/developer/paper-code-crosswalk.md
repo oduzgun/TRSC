@@ -1,10 +1,12 @@
 # Frozen TRSC paper to code crosswalk
 
 Authority: Gate 5C `TRSC_Unified.tex`, SHA-256
-`e3b6e199a27f580d6b28c226a5fb1b25c580d2d9f71be60ee869562afdd66d92`.
+`a8dc8f37ab9d0d80312f54baa68e0da53432b19d3a9090158dad6b2799e93b83`.
 This checksum was verified against the authoritative workspace manuscript on
-September 25, 2026. It supersedes the earlier crosswalk checksum as a
-provenance correction only; no statistical result or estimator was changed.
+September 26, 2026. The preceding frozen-theory manuscript checksum was
+`e3b6e199a27f580d6b28c226a5fb1b25c580d2d9f71be60ee869562afdd66d92`.
+The new checksum adds the audited California empirical section and appendix;
+no statistical result, estimator or frozen theorem was changed.
 Baseline repository: `a0b228f5abb6f28f6f7f0aff2ea0b5775cac87e9`.
 This is an implementation contract, not a revision of the statistical theory.
 
@@ -71,10 +73,12 @@ not theorems in arbitrary designs.
 | Conditional-mean translation | `trsc_effect_interval` | `test-inference.R`: endpoint signs, additional failure allocation, rejected realized estimand |
 | Simulation separation | observed-only runner versus truth-only metrics | `research/simulations/tests/test-post-smoke.R`: truth mutation and failure retention |
 
-No frozen paper file is modified. Analytic finite-sample constants are supplied
-through certificates, not estimated by the package. The crosswalk does not
-claim automatic verification of assumptions, minimax bounds or population
-metric recovery.
+The frozen theory statements are not modified. The manuscript now includes the
+audited California application, whose reported regions are Tier-1 plug-in
+identified sets. Analytic finite-sample constants are supplied through
+certificates, not estimated by the package. The crosswalk does not claim
+automatic verification of assumptions, minimax bounds or population metric
+recovery.
 
 ## Scientific boundaries
 

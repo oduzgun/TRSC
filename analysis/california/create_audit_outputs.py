@@ -285,7 +285,7 @@ for ax, q in zip(axes, (1, 2)):
         monotone_upper = np.maximum.accumulate(z["upper"].to_numpy())
         width = monotone_upper - monotone_lower
         ax.plot(z["c"], width, marker="o", markersize=3, linewidth=1.7,
-                color=colors[horizon], label=f"h={horizon}")
+                color=colors[horizon], label=f"Horizon {horizon}")
     ax.set_xscale("symlog", linthresh=0.25, base=2)
     ax.set_xlabel("Sensitivity multiplier c")
     ax.set_ylabel("Monotone certified outer width")
