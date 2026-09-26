@@ -37,4 +37,41 @@ a1<-trsc_sim_frozen_attempt(small$cells,1,small);a2<-trsc_sim_frozen_attempt(sma
 for(x in list(a1,a2)){x$status<-if(x$repetition==1)"success"else"error";x$error_class<-if(x$repetition==1)NA_character_ else "fixture";x$message<-NA_character_;x$warnings<-"";x$runtime_seconds<-0;x$rng_kind<-"fixture";trsc_sim_atomic_save(list(attempt=x,result=NULL),trsc_sim_result_path(tmp,x))}
 z<-trsc_sim_combine_frozen(tmp,small,ex);stopifnot(nrow(z$attempts)==2,sum(z$attempts$status=="error")==1)
 unlink(trsc_sim_result_path(tmp,a2));e<-tryCatch({trsc_sim_combine_frozen(tmp,small,ex);NULL},error=identity);stopifnot(inherits(e,"error"),grepl("missing",conditionMessage(e),ignore.case=TRUE));unlink(tmp,recursive=TRUE)
+
+
+# Pre-run provenance must be distinct from post-build workspace dirtiness.
+prov<-trsc_sim_provenance_snapshot(initial_sha="0123456789abcdef",initial_dirty=FALSE)
+stopifnot(prov$repository_sha=="0123456789abcdef",identical(prov$dirty,FALSE),
+          all(c("post_check_dirty","post_check_dirty_paths")%in%names(prov)))
+
+# Reserved-seed reporting fixture: require the complete predeclared numerical
+# diagnostics without executing a scientific registry repetition.
+pc<-cells[cells$panel=="P0"&cells$scenario=="persistence"&cells$structural_q==1&
+          cells$radius_rule=="rmin",][1,,drop=FALSE]
+pc$T<-60;pc$J_requested<-3;pc$J_effective<-3;pc$rank_requested<-1;pc$rank_effective<-1
+pc$H<-1;pc$gap<-10;pc$velocity_rule<-"0.05/T";pc$velocity<-.05/60
+pc$predictive_library<-"L1"
+pd<-trsc_sim_post_scenario("persistence",seed=12,T=60,J=3,H=1,rank=1,
+                           noise_sd=.2,gap=10,velocity=.05/60,
+                           amplification=1,near_distance=.001,dependence=0)
+prad<-trsc_sim_resolve_radius(pc,pd$truth)
+pp<-trsc_sim_post_protocol(1,prad$R,predictive_q=1,kappa=.3,bandwidths=1,
+                           diameter_bound=pc$D)
+pfit<-trsc_sim_post_feasible(pd$observed,pp)
+pm<-trsc_sim_post_frozen_metrics(pc,pfit,pd$truth,prad,f)
+required_support<-c("upper_dual_objective","lower_dual_objective",
+ "upper_certified_correction","lower_certified_correction",
+ "upper_dual_feasible","lower_dual_feasible",
+ "unrestricted_hull_lower","unrestricted_hull_upper",
+ "unrestricted_hull_width","width_to_unrestricted_hull",
+ "lower_endpoint_comparison","upper_endpoint_comparison")
+stopifnot(all(required_support%in%names(pm$supports)))
+allowed<-c("certified_covered","certified_not_covered","unresolved")
+stopifnot(all(pm$supports$lower_endpoint_comparison%in%allowed),
+          all(pm$supports$upper_endpoint_comparison%in%allowed))
+required_decomp<-c("direction","population_width","plugin_width",
+                   "semi_feasible_width","outer_width","statistical_enlargement")
+stopifnot(is.data.frame(pm$decomposition),
+          all(required_decomp%in%names(pm$decomposition)))
+
 cat("Frozen Stage-A registry and orchestration contracts passed.\n")
