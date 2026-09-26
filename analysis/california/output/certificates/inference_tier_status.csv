@@ -1,0 +1,4 @@
+"tier","status","confidence_interpretation"
+"tier_1_plugin","available_from_dynamic_sets",FALSE
+"tier_2_diagnostic_or_semi_feasible","not_run_without_supplied_bounds",FALSE
+"tier_3_honest_gate_5","unavailable_missing_defensible_certificates",FALSE

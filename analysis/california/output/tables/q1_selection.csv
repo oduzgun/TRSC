@@ -1,0 +1,2 @@
+"q","selected_candidate","kappa","h","validation_score","fit_rmse","fit_loss","temporal_roughness","penalty","fitting_cutoff","solver_status","iterations","primal_residual","dual_residual"
+1,"m019",30,1,2.45277354215319,6.46643480914232e-06,4.59962570549762e-10,1.34249956383494e-09,4.02749869150483e-08,1985,"solved",875,2.78330576394689e-09,0.000546605167734149

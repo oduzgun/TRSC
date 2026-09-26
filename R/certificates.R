@@ -23,7 +23,9 @@
 #'   each readout or each horizon.
 #' @param source Explanation or reference supporting the numerical bounds.
 #' @param previous Preceding readout representative for q2; velocity center is
-#'   center minus previous in predictive geometry.
+#'   center minus previous in predictive geometry. For a frozen fitted path,
+#'   use the `previous` component returned by [trsc_boundary_readouts()] with
+#'   the same selected bandwidth.
 #' @param W Positive definite symmetric 2-by-2 joint weighting matrix for q2.
 #' @param provenance One of `maintained_bound`, `analytically_known`,
 #'   `independently_certified`, `diagnostic_only`.

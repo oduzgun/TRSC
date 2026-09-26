@@ -1,0 +1,9 @@
+item,value,evidence
+execution_host,macOS arm64,From the supplied terminal history
+R_runtime,R 4.5 arm64 framework; patch version not recorded,Do not infer an exact patch release
+TRSC_version,0.1.0,Reported by R CMD INSTALL
+ECOSolveR,0.6.1,Binary package downloaded before execution
+gmp,0.7-5.1,Binary package downloaded before execution
+data_reader_patch,haven::as_factor(raw$state),Required to decode labelled Stata state names
+boundary_helper_patch,manually added and exported,Saved h=1 output agrees with adjacent 1985/1984 fitted endpoints
+executed_package_tree_sha256,unavailable,The package source directory was not archived after the manual patches

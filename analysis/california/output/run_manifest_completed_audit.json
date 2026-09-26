@@ -1,0 +1,63 @@
+{
+  "audit_timestamp_utc": "2026-09-25T21:07:11.367222+00:00",
+  "source_results_archive": "prism-uploads/california_trsc_results.zip",
+  "source_results_archive_sha256": "c86dc8fba654cc96571cb5f0656c382390439ed98220c705925ac228c5999923",
+  "original_manifest_preserved": true,
+  "original_manifest_status": "stale_python_only_state",
+  "package_base_git_sha": "64b23b38cbc339492547a752759d994db501a7cc",
+  "executed_package_working_tree_sha256": null,
+  "pre_run_manifest_package_working_tree_sha256": "a696470d757cd88d0c9460a3278eb6a5b82593540caffb8e70ece00e0f01e68e",
+  "execution_environment": {
+    "host": "macOS arm64",
+    "R": "4.5 arm64 framework; exact patch release not recorded",
+    "TRSC": "0.1.0",
+    "ECOSolveR": "0.6.1",
+    "gmp": "0.7-5.1"
+  },
+  "manual_pre_run_fixes": [
+    "decoded the haven-labelled Stata state variable with haven::as_factor",
+    "added and exported trsc_boundary_readouts after the initial installed package lacked it"
+  ],
+  "manuscript_sha256": "e3b6e199a27f580d6b28c226a5fb1b25c580d2d9f71be60ee869562afdd66d92",
+  "dataset_sha256": "3a9b6ead5803a86b0f22adc3fb71fac5ed2a8eba6620f745660a520acf3d68b5",
+  "config_sha256": {
+    "candidates.yml": "898ef3f997e0401f37f4d7dd61205395f2a00605c3b2a1ff9a707855a0796df0",
+    "certificates.yml": "3397ce47124351da68ced855fc2b9c6ce73c828d9df5d1e525b3c74662e9f3f1",
+    "design.yml": "f7cfe14806802ee6d298aad15f1e521d3e76cb3e1111546dafb64d6a49147314",
+    "sensitivity.yml": "428b3d6269883dd8de67e470fd6d19b6613e2c1c3ff7ac4cf49e8eb62a8ec7cf"
+  },
+  "completed_stage_status_files": {},
+  "selected_candidates": {
+    "q1": {
+      "selected_candidate": "m019",
+      "kappa": 30,
+      "h": 1,
+      "validation_score": 2.45277354215319
+    },
+    "q2": {
+      "selected_candidate": "m004",
+      "kappa": 0.1,
+      "h": 1,
+      "validation_score": 4.54149678564015
+    }
+  },
+  "inference_status": [
+    {
+      "tier": "tier_1_plugin",
+      "status": "available_from_dynamic_sets",
+      "confidence_interpretation": false
+    },
+    {
+      "tier": "tier_2_diagnostic_or_semi_feasible",
+      "status": "not_run_without_supplied_bounds",
+      "confidence_interpretation": false
+    },
+    {
+      "tier": "tier_3_honest_gate_5",
+      "status": "unavailable_missing_defensible_certificates",
+      "confidence_interpretation": false
+    }
+  ],
+  "audit_reconciliation_file": "output/audit_reconciliation.csv",
+  "execution_provenance_file": "output/execution_provenance.csv"
+}

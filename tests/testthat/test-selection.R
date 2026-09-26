@@ -49,6 +49,55 @@ test_that("terminal taper matches the paper and remains a convex simplex readout
   )
 })
 
+test_that("boundary readouts use one frozen fit and the same shifted taper", {
+  fixture <- make_selection_fixture()
+  boundary <- trsc_boundary_readouts(fixture$fit, h = 2)
+  W <- stats::weights(fixture$fit)
+  taper <- c(2 / 3, 1 / 3)
+
+  expect_s3_class(boundary, "trsc_boundary_readouts")
+  expect_s3_class(boundary$level, "trsc_readout")
+  expect_s3_class(boundary$previous, "trsc_readout")
+  expect_identical(boundary$level, trsc_readout(fixture$fit, h = 2))
+  expect_equal(
+    unname(boundary$level$representative),
+    unname(drop(W[, c(4, 3), drop = FALSE] %*% taper)),
+    tolerance = 2e-6
+  )
+  expect_equal(
+    unname(boundary$previous$representative),
+    unname(drop(W[, c(3, 2), drop = FALSE] %*% taper)),
+    tolerance = 2e-6
+  )
+  expect_identical(boundary$level$cutoff, fixture$fit$periods[4])
+  expect_identical(boundary$previous$cutoff, fixture$fit$periods[3])
+  expect_equal(
+    boundary$velocity_metric_coordinates,
+    boundary$level$metric_coordinates - boundary$previous$metric_coordinates,
+    tolerance = 1e-14
+  )
+  deployment <- matrix(
+    c(A = 0, B = 10), nrow = 1,
+    dimnames = list(NULL, c("A", "B"))
+  )
+  q2_set <- trsc_counterfactual_set(
+    fixture$geometry, deployment,
+    anchor = boundary$level,
+    q = 2, R = 0,
+    previous = boundary$previous
+  )
+  expect_s3_class(q2_set, "trsc_identified_set")
+  expect_equal(q2_set$anchors[[1]], boundary$previous$representative,
+               tolerance = 2e-6)
+  expect_equal(q2_set$anchors[[2]], boundary$level$representative,
+               tolerance = 2e-6)
+  expect_true(boundary$frozen)
+  expect_error(
+    trsc_boundary_readouts(fixture$fit, h = 4),
+    "one additional fitted date"
+  )
+})
+
 test_that("default readout library uses dyadic bandwidths plus full length", {
   fixture <- make_selection_fixture()
   library <- trsc_readout_library(fixture$fit)

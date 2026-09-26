@@ -1,0 +1,20 @@
+project: california_prop99_trsc
+treated_unit: California
+outcome: cigsale
+intervention_year: 1989
+pre_period: [1970, 1988]
+post_period: [1989, 2000]
+calibration_years: [1970, 1971, 1972, 1973, 1974]
+fitting_years: [1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985]
+validation_years: [1986, 1987, 1988]
+target_year: 1988
+calibration_thin: 1
+validation_thin: 1
+period_step: 1
+expected_states: 39
+expected_donors: 38
+expected_pre_periods: 19
+expected_post_periods: 12
+primary_information: contemporaneous_outcome_panel_only
+full_pre_geometry_role: diagnostic_only
+post_treated_outcome_tuning: forbidden

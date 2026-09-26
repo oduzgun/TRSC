@@ -1,0 +1,12 @@
+structural_orders: [1, 2]
+kappa: [0.03, 0.1, 0.3, 1, 3, 10, 30]
+readout_bandwidths: [1, 2, 4]
+candidate_order: q_fixed_then_kappa_ascending_then_h_ascending
+select_q_jointly: false
+boundary_expansion_rule:
+  trigger: selected_kappa_is_grid_endpoint
+  lower_multiplier: 0.1
+  upper_multiplier: 10
+  timing: pre_treatment_only_before_any_post_treatment_analysis
+  repeat_until_selected_kappa_is_interior: true
+final_refit: false

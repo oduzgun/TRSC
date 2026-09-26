@@ -1,0 +1,2 @@
+"benchmark","start_year","end_year","rmse","mspe","solver_status","iterations","primal_residual","dual_residual"
+"static_role_matched",1975,1985,0.283723382939555,0.0804989580266653,"solved",8775,3.77329776082978e-10,0.000639155663646098

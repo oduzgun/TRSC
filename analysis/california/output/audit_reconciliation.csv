@@ -1,0 +1,10 @@
+file,audit_status,resolution
+run_manifest.json,stale,Records the earlier Python-only run; completed R stages postdate it.
+solver-logs/all_endpoint_status.csv,stale,Records TRSC as unexecuted despite completed endpoint logs.
+diagnostics/fairness_audit.csv,stale,Pre-R audit language says TRSC stages were unexecuted.
+diagnostics/figure_status.csv,stale,Predates the generated TRSC figures.
+tables/table2_pre_treatment_selection.csv,stale_placeholder,Use q1_selection.csv and q2_selection.csv.
+tables/table4_q_R_identification.csv,stale_placeholder,Use q1_dynamic_bounds.csv and q2_dynamic_bounds.csv.
+tables/table5_evaluation_deployment.csv,stale_placeholder,Use evaluation_fibers.csv and deployment_modulus.csv.
+tables/table6_inference_decomposition.csv,stale_placeholder,No Tier-2 or Tier-3 inference was run.
+executed package tree,checksum_unavailable,The macOS run manually patched the labelled-state reader and q=2 boundary helper after the stale manifest was written.

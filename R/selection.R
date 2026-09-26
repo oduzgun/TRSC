@@ -1,3 +1,61 @@
+# Internal constructor used by terminal and shifted boundary readouts.
+.trsc_readout_at <- function(fit, h, end_index) {
+  if (!inherits(fit, "trsc_fit") || !is.list(fit)) {
+    stop("fit must be a trsc_fit object.", call. = FALSE)
+  }
+  if (length(h) != 1L || !is.numeric(h) || is.complex(h) ||
+      is.na(h) || !is.finite(h) || h != as.integer(h) || h < 1L) {
+    stop("h must be one positive integer-valued number.", call. = FALSE)
+  }
+  h <- as.integer(h)
+  n <- length(fit$periods)
+  if (length(end_index) != 1L || !is.numeric(end_index) ||
+      is.complex(end_index) || is.na(end_index) || !is.finite(end_index) ||
+      end_index != as.integer(end_index) || end_index < 1L || end_index > n) {
+    stop("end_index must identify one fitted date.", call. = FALSE)
+  }
+  end_index <- as.integer(end_index)
+  if (h > end_index) {
+    stop("h cannot exceed the number of fitted dates available at the readout endpoint.",
+         call. = FALSE)
+  }
+
+  lags <- 0:(h - 1L)
+  taper <- 2 * (h - lags) / (h * (h + 1))
+  terminal_index <- end_index - lags
+
+  W <- fit$weights[, terminal_index, drop = FALSE]
+  representative <- drop(W %*% taper)
+  names(representative) <- fit$donor_names
+
+  metric <- fit$metric_coordinates[, terminal_index, drop = FALSE]
+  metric_coordinates <- if (nrow(metric)) {
+    drop(metric %*% taper)
+  } else {
+    numeric(0)
+  }
+  if (length(metric_coordinates)) {
+    names(metric_coordinates) <- rownames(fit$metric_coordinates)
+  }
+
+  structure(
+    list(
+      schema_version = 1L,
+      bandwidth = h,
+      cutoff = fit$periods[end_index],
+      source_periods = fit$periods,
+      source_specification = fit$specification,
+      donor_names = fit$donor_names,
+      taper_weights = stats::setNames(taper, as.character(fit$periods[terminal_index])),
+      representative = representative,
+      metric_coordinates = metric_coordinates,
+      geometry = fit$geometry,
+      frozen = TRUE
+    ),
+    class = "trsc_readout"
+  )
+}
+
 #' Construct a frozen terminal readout from a TRSC fit
 #'
 #' @param fit A `trsc_fit` object whose fitted periods end at the fitting
@@ -19,49 +77,75 @@ trsc_readout <- function(fit, h = 1L) {
   if (!inherits(fit, "trsc_fit") || !is.list(fit)) {
     stop("fit must be a trsc_fit object.", call. = FALSE)
   }
+  .trsc_readout_at(fit, h, length(fit$periods))
+}
+
+#' Construct aligned current and preceding boundary readouts
+#'
+#' Construct the two frozen triangular readouts needed to represent a
+#' second-order boundary level and velocity. The same bandwidth and taper are
+#' used at adjacent fitted endpoints, so the preceding readout is not rebuilt
+#' by an application-specific convention.
+#'
+#' @param fit A `trsc_fit` object.
+#' @param h Positive integer triangular-readout bandwidth. At least `h + 1`
+#'   fitted dates are required so the taper can be shifted back one date.
+#'
+#' @return A `trsc_boundary_readouts` object containing `level` and `previous`
+#'   `trsc_readout` objects, their simplex representatives and metric
+#'   coordinates, and the implied metric-coordinate velocity. These are
+#'   frozen predictive readouts; they do not establish a causal boundary or a
+#'   fitting-to-cutoff transfer bound.
+#'
+#' @details The level readout uses the final `h` fitted relationships. The
+#'   preceding readout applies exactly the same triangular taper to the `h`
+#'   relationships ending one fitted date earlier. Consequently the velocity
+#'   center is `level - previous` in predictive coordinates. This helper does
+#'   not extrapolate either readout to a later causal cutoff.
+#'
+#' @export
+trsc_boundary_readouts <- function(fit, h = 1L) {
+  if (!inherits(fit, "trsc_fit") || !is.list(fit)) {
+    stop("fit must be a trsc_fit object.", call. = FALSE)
+  }
+  n <- length(fit$periods)
   if (length(h) != 1L || !is.numeric(h) || is.complex(h) ||
       is.na(h) || !is.finite(h) || h != as.integer(h) || h < 1L) {
     stop("h must be one positive integer-valued number.", call. = FALSE)
   }
   h <- as.integer(h)
-  n <- length(fit$periods)
-  if (h > n) {
-    stop("h cannot exceed the number of fitted dates.", call. = FALSE)
+  if (h >= n) {
+    stop("Boundary readouts require one additional fitted date before the level taper.",
+         call. = FALSE)
   }
 
-  lags <- 0:(h - 1L)
-  taper <- 2 * (h - lags) / (h * (h + 1))
-  terminal_index <- n - lags
-
-  W <- fit$weights[, terminal_index, drop = FALSE]
-  representative <- drop(W %*% taper)
-  names(representative) <- fit$donor_names
-
-  metric <- fit$metric_coordinates[, terminal_index, drop = FALSE]
-  metric_coordinates <- if (nrow(metric)) {
-    drop(metric %*% taper)
-  } else {
-    numeric(0)
-  }
-  if (length(metric_coordinates)) {
-    names(metric_coordinates) <- rownames(fit$metric_coordinates)
-  }
+  level <- .trsc_readout_at(fit, h, n)
+  previous <- .trsc_readout_at(fit, h, n - 1L)
+  velocity_metric_coordinates <-
+    level$metric_coordinates - previous$metric_coordinates
 
   structure(
     list(
       schema_version = 1L,
       bandwidth = h,
-      cutoff = fit$periods[n],
-      source_periods = fit$periods,
-      source_specification = fit$specification,
-      donor_names = fit$donor_names,
-      taper_weights = stats::setNames(taper, as.character(fit$periods[terminal_index])),
-      representative = representative,
-      metric_coordinates = metric_coordinates,
-      geometry = fit$geometry,
-      frozen = TRUE
+      level = level,
+      previous = previous,
+      representatives = list(
+        beta0 = level$representative,
+        beta_minus1 = previous$representative
+      ),
+      metric_coordinates = list(
+        beta0 = level$metric_coordinates,
+        beta_minus1 = previous$metric_coordinates
+      ),
+      velocity_metric_coordinates = velocity_metric_coordinates,
+      frozen = TRUE,
+      interpretation = paste(
+        "aligned predictive boundary readouts; causal and transfer",
+        "assumptions remain external"
+      )
     ),
-    class = "trsc_readout"
+    class = "trsc_boundary_readouts"
   )
 }
 

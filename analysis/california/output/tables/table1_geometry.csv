@@ -1,0 +1,3 @@
+geometry_role,observations,ambient_J,empirical_rank,empirical_null_dimension,affine_predictive_dimension,simplex_null_dimension,positive_condition_number,contrast_positive_condition_number,contrast_top_share,modes_90,modes_95,modes_99
+primary_calibration_1970_1974,5,38,5,33,5,32,34896.5866698485,3249.6017137641975,0.9788596273404038,1,1,2
+full_pre_diagnostic_1970_1988,19,38,19,19,19,18,729331.060777728,40352.454940068914,0.9480444706313575,1,2,4

@@ -1,7 +1,10 @@
 # Frozen TRSC paper to code crosswalk
 
 Authority: Gate 5C `TRSC_Unified.tex`, SHA-256
-`8e73fc63116faede9a98b5e508af2ef05a630dda60c25abfd31773cc94743399`.
+`e3b6e199a27f580d6b28c226a5fb1b25c580d2d9f71be60ee869562afdd66d92`.
+This checksum was verified against the authoritative workspace manuscript on
+September 25, 2026. It supersedes the earlier crosswalk checksum as a
+provenance correction only; no statistical result or estimator was changed.
 Baseline repository: `a0b228f5abb6f28f6f7f0aff2ea0b5775cac87e9`.
 This is an implementation contract, not a revision of the statistical theory.
 
@@ -31,7 +34,7 @@ new metric, ridge, full-rank assumption, or theory change.
 |---|---|---|---|
 | Estimator A; Proposition 3.1 | `trsc_geometry`, `trsc_fit`, profile helpers | existing OSQP QP; forward metric factor | existing fit/invariance tests; weak-direction regression |
 | split–fit–freeze–validate | data, sample plan, calibration geometry, candidate library, selection, workflow | retained chronological pipeline | existing leakage, tie, split, mixing tests |
-| terminal triangular readout | `trsc_readout`, library | convex readout; optional preceding endpoint | readout and certificate tests |
+| terminal triangular readout | `trsc_readout`, `trsc_boundary_readouts`, library | convex level readout and deterministic same-taper preceding endpoint | readout and certificate tests |
 | Theorem 8.1; evaluation fibers | `trsc_evaluation_set`, width, point-identification diagnostic | LP with profile equality and all simplex lifts | analytic duplicate/null examples |
 | Theorem 9.1; dynamic set | `trsc_counterfactual_set`, `trsc_support` | anchored q1/q2 SOCP, independent future lifts | analytic and grid support tests |
 | minimum curvature; sensitivity frontier | `trsc_min_radius`, `trsc_sensitivity` | root-energy epigraph SOCP; repeated support | q1 zero, q2 affine and Rmin example |

@@ -1,0 +1,5 @@
+component,endpoints,optimal,close_to_optimal,numerical_problems,multiplier_cone,max_iterations,structural_infeasible,rational_dual_residual,simplex_hull,max_primal_violation,max_stationarity_residual
+q1_dynamic,336,29,297,10,0,0,0,336,0,0.110753069993018,0.000376818806083
+q2_dynamic,336,117,191,17,10,1,0,323,13,393.568914430391,151853.427298598
+evaluation_fibers,96,96,0,0,0,0,0,96,0,8.2243490326723e-09,2.02294551345463e-08
+deployment_modulus,144,144,0,0,0,0,0,144,0,2.37404854074037e-07,3.36730921315593e-08

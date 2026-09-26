@@ -1,0 +1,4 @@
+benchmark,fit_start,fit_end,rmse,mspe,max_abs_residual,nonzero_weights,solver_status
+static_role_matched,1975,1985,0.28372336877935217,0.08049894999150427,0.543121684781994,9,solved
+static_full_pre,1970,1988,1.65640020692207,2.7436616454914766,5.575955638301636,6,solved
+adh_published_weights_diagnostic,1970,1988,1.7576117495144288,3.089199062031171,5.904000106811509,5,published_weights_not_reestimated

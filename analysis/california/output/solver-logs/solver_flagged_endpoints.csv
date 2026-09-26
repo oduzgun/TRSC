@@ -1,0 +1,42 @@
+component,q,R,horizon,year,direction,status,backend,primal_objective,certified_upper,primal_lower,certified_gap,primal_violation,primal_exact,certificate_method,stationarity_residual
+q1_dynamic,1,0.0052139622082597,1,1989,lower,Ran into numerical problems,ECOSolveR,-84.5347259472949,-84.5346958575608,,,0.0001920235813325,False,rational_dual_residual,2.51418702999604e-06
+q1_dynamic,1,0.020855848833039,1,1989,lower,Ran into numerical problems,ECOSolveR,-84.4864994517781,-84.486499513533,,,7.40715186251101e-05,False,rational_dual_residual,4.7765562350173e-08
+q1_dynamic,1,0.041711697666078,3,1991,lower,Ran into numerical problems,ECOSolveR,-75.793829196154,-75.79377551108,,,0.00349600776186,False,rational_dual_residual,6.08291715221039e-06
+q1_dynamic,1,0.041711697666078,6,1994,lower,Ran into numerical problems,ECOSolveR,-73.6971435075995,-73.6964875107002,,,0.0137029907201194,False,rational_dual_residual,5.70263531190932e-05
+q1_dynamic,1,0.041711697666078,8,1996,lower,Ran into numerical problems,ECOSolveR,-70.5832978330705,-70.5833192378942,,,0.0012935339916213,False,rational_dual_residual,1.98370924607707e-07
+q1_dynamic,1,0.041711697666078,10,1998,lower,Ran into numerical problems,ECOSolveR,-64.7974247136006,-64.7974295625126,,,0.00540936987077,False,rational_dual_residual,8.691386830783911e-09
+q1_dynamic,1,0.041711697666078,11,1999,lower,Ran into numerical problems,ECOSolveR,-65.4207362597176,-65.4207378482054,,,0.0028462507345172,False,rational_dual_residual,3.90079603622697e-07
+q1_dynamic,1,0.041711697666078,11,1999,upper,Ran into numerical problems,ECOSolveR,112.523368347075,112.523030165812,,,0.020105866204058,False,rational_dual_residual,4.76852512431205e-06
+q1_dynamic,1,0.041711697666078,12,2000,lower,Ran into numerical problems,ECOSolveR,-59.7074782380592,-59.7054992029871,,,0.0197190518207733,False,rational_dual_residual,0.0001684624220061
+q1_dynamic,1,0.041711697666078,12,2000,upper,Ran into numerical problems,ECOSolveR,107.729393009706,107.733723676699,,,0.110753069993018,False,rational_dual_residual,0.000376818806083
+q2_dynamic,2,1.47880443338696e-08,5,1993,upper,PROBLEM: Multipliers leaving the cone,ECOSolveR,129.597547954043,167.600006103516,,,41.9544855493758,False,simplex_hull,149585.181879827
+q2_dynamic,2,1.47880443338696e-08,8,1996,lower,PROBLEM: Multipliers leaving the cone,ECOSolveR,-202.294088682598,-54.0,,,329.096605303072,False,simplex_hull,84991.2155693618
+q2_dynamic,2,0.0007010890423745,8,1996,lower,PROBLEM: Multipliers leaving the cone,ECOSolveR,-204.624406980518,-54.0,,,334.65817718411,False,simplex_hull,85970.200184722
+q2_dynamic,2,0.0014021632967048,1,1989,lower,Ran into numerical problems,ECOSolveR,-79.5028924999884,-79.5028477860381,,,0.0055682331386107,False,rational_dual_residual,3.94037640222355e-06
+q2_dynamic,2,0.0014021632967048,5,1993,upper,PROBLEM: Multipliers leaving the cone,ECOSolveR,128.853413095484,167.600006103516,,,41.0191963018199,False,simplex_hull,148586.686333035
+q2_dynamic,2,0.0014021632967048,8,1996,lower,PROBLEM: Multipliers leaving the cone,ECOSolveR,-206.602486427539,-54.0,,,339.383387877048,False,simplex_hull,86803.5286709004
+q2_dynamic,2,0.0028043118053653,5,1993,upper,PROBLEM: Multipliers leaving the cone,ECOSolveR,131.638849099551,167.600006103516,,,44.5827215115877,False,simplex_hull,151853.427298598
+q2_dynamic,2,0.0028043118053653,8,1996,lower,PROBLEM: Multipliers leaving the cone,ECOSolveR,-209.454558281042,-54.0,,,346.206304602222,False,simplex_hull,88015.1800403219
+q2_dynamic,2,0.0056086088226863,8,1996,lower,PROBLEM: Multipliers leaving the cone,ECOSolveR,-215.862952465387,-54.0,,,361.578030827139,False,simplex_hull,90682.7326065927
+q2_dynamic,2,0.0056086088226863,10,1998,lower,Ran into numerical problems,ECOSolveR,-54.6986284384353,-54.6980605770827,,,0.0365370586599252,False,rational_dual_residual,4.96256832874851e-05
+q2_dynamic,2,0.0112172028573284,1,1989,lower,Ran into numerical problems,ECOSolveR,-79.473454772427,-79.4734542698018,,,0.0010715559412207,False,rational_dual_residual,8.90048454327432e-08
+q2_dynamic,2,0.0112172028573284,8,1996,lower,PROBLEM: Multipliers leaving the cone,ECOSolveR,-216.54879512476,-54.0,,,363.625183820344,False,simplex_hull,91011.7963874416
+q2_dynamic,2,0.0224343909266125,4,1992,upper,Ran into numerical problems,ECOSolveR,116.103467031653,116.104887326843,,,0.182149235022178,False,rational_dual_residual,0.0001354105368828
+q2_dynamic,2,0.0224343909266125,7,1995,lower,Ran into numerical problems,ECOSolveR,-63.3540796406285,-63.3536031103631,,,0.0384603468198122,False,rational_dual_residual,4.10743139066288e-05
+q2_dynamic,2,0.0224343909266125,8,1996,lower,PROBLEM: Multipliers leaving the cone,ECOSolveR,-228.78397202762,-54.0,,,393.568914430391,False,simplex_hull,96136.1900195203
+q2_dynamic,2,0.0224343909266125,12,2000,lower,Ran into numerical problems,ECOSolveR,-50.4098681087517,-50.4094921026826,,,0.0167634624417215,False,rational_dual_residual,3.28847554539867e-05
+q2_dynamic,2,0.0448687670651806,3,1991,upper,Ran into numerical problems,ECOSolveR,109.779570216869,109.781159655204,,,0.113796447058955,False,rational_dual_residual,0.0001624697284868
+q2_dynamic,2,0.0448687670651806,5,1993,lower,Ran into numerical problems,ECOSolveR,-69.2179831760783,-69.2173497455932,,,0.0155957180701413,False,rational_dual_residual,5.6428169487335e-05
+q2_dynamic,2,0.0448687670651806,7,1995,lower,Ran into numerical problems,ECOSolveR,-63.2519432617978,-63.2519453557464,,,0.013750252306753,False,rational_dual_residual,1.63629299431836e-08
+q2_dynamic,2,0.0448687670651806,8,1996,lower,Ran into numerical problems,ECOSolveR,-63.9435298978843,-63.9435299245509,,,0.0070960078335035,False,rational_dual_residual,1.07633313210623e-08
+q2_dynamic,2,0.0448687670651806,11,1999,upper,Ran into numerical problems,ECOSolveR,93.191425670558,93.1937161460871,,,0.0903884179266229,False,rational_dual_residual,0.0002214876488359
+q2_dynamic,2,0.0897375193423168,1,1989,upper,Ran into numerical problems,ECOSolveR,110.614411516632,110.614473381836,,,0.0096524909272717,False,rational_dual_residual,8.94622473471047e-06
+q2_dynamic,2,0.0897375193423168,5,1993,upper,Ran into numerical problems,ECOSolveR,109.565011898132,109.564989130697,,,0.0099983813159748,False,rational_dual_residual,1.22764065382993e-08
+q2_dynamic,2,0.0897375193423168,7,1995,lower,Ran into numerical problems,ECOSolveR,-62.940800829563,-62.9408092330433,,,0.0040899181819093,False,rational_dual_residual,1.01825063677774e-07
+q2_dynamic,2,0.0897375193423168,12,2000,lower,Ran into numerical problems,ECOSolveR,-49.6870462536343,-49.687050268877,,,0.0007975685053977,False,rational_dual_residual,4.10977671555097e-08
+q2_dynamic,2,0.179475023896589,3,1991,upper,Maximum number of iterations reached,ECOSolveR,114.310126124485,114.310027054467,,,0.0210578579263285,False,rational_dual_residual,3.47055868201996e-07
+q2_dynamic,2,0.179475023896589,4,1992,upper,Ran into numerical problems,ECOSolveR,121.032700001379,121.035436575318,,,0.0387716281524176,False,rational_dual_residual,0.0002487913675754
+q2_dynamic,2,0.179475023896589,8,1996,upper,Ran into numerical problems,ECOSolveR,105.987642857622,105.992723134175,,,0.0251291103151033,False,rational_dual_residual,0.0004579831654327
+q2_dynamic,2,1.4358000876564,12,2000,lower,Optimal solution found,ECOSolveR,-40.7000007629197,-40.7000007629395,,,1.1020170031261101e-14,False,simplex_hull,4.1984903349124995e-12
+q2_dynamic,2,2.87160016052476,11,1999,lower,Optimal solution found,ECOSolveR,-43.9000015258305,-43.9000015258789,,,2.64267434840317e-14,False,simplex_hull,8.65289022833377e-12
+q2_dynamic,2,2.87160016052476,12,2000,lower,Optimal solution found,ECOSolveR,-40.7000007629356,-40.7000007629395,,,2.2261426822638003e-15,False,simplex_hull,7.24006403793501e-13

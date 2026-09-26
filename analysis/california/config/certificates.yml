@@ -1,0 +1,25 @@
+tier_1:
+  name: plugin_identification
+  confidence_interpretation: false
+tier_2:
+  name: diagnostic_or_semi_feasible_outer_sets
+  confidence_interpretation: false
+  supplied_bounds_required: true
+tier_3:
+  name: honest_gate_5_outer_confidence_sets
+  enabled_by_default: false
+  required_inputs:
+    - path_risk_envelope
+    - noise_covariance_bound
+    - restricted_coercivity_bound
+    - fitting_to_cutoff_transfer_bound
+    - predictive_to_causal_transfer_bound
+    - all_simplex_chord_epsilon
+    - valid_probability_allocation
+    - numerical_endpoint_certificate
+forbidden_substitutions:
+  - empirical_rank_for_population_rank
+  - full_pre_geometry_for_population_geometry
+  - kappa_for_R
+  - raw_outcome_difference_for_profile_velocity
+  - observed_treated_realization_for_conditional_mean

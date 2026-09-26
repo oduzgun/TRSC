@@ -144,6 +144,8 @@ trsc_point_identified <- function(object, tolerance = 1e-7) {
 #' @param q Explicit structural order, 1 or 2. Never inferred from a fitted q.
 #' @param R Declared nonnegative root-energy sensitivity radius, not estimated.
 #' @param previous For q=2, simplex representative of the preceding profile.
+#'   For a frozen fitted path, use the `previous` component returned by
+#'   [trsc_boundary_readouts()] with the same selected bandwidth.
 #' @param type `plugin` (default) or `population`; the latter is an explicit
 #'   assertion that supplied geometry and causal anchors are population inputs.
 #' @param control Named ECOS controls.

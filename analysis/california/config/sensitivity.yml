@@ -1,0 +1,7 @@
+horizon: 12
+c_grid: [0, 0.25, 0.5, 1, 2, 4, 8, 16]
+epsilon_grid: [0, 0.25, 0.5, 1, 2, 5]
+scale_definition: sqrt_H_times_median_qth_predictive_increment_norm
+saturation_extension: fixed_doubling
+skip_infeasible_radii: false
+treated_outcome_used_for_grid: false

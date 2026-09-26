@@ -15,7 +15,7 @@ identify a causal effect.
 |---|---|
 | Prepare and split | `trsc_data()`, `trsc_split()`, `trsc_sample_plan()` |
 | Prediction geometry | `trsc_geometry()`, `trsc_calibration_geometry()`, `trsc_profile_coordinates()`, `trsc_profile_distance()`, `trsc_profile_equivalent()` |
-| Fit and freeze | `trsc_fit()`, `predictive_path()`, `trsc_readout()`, `trsc_readout_library()`, `trsc_candidate_library()`, `trsc_select()`, `trsc_workflow()` |
+| Fit and freeze | `trsc_fit()`, `predictive_path()`, `trsc_readout()`, `trsc_boundary_readouts()`, `trsc_readout_library()`, `trsc_candidate_library()`, `trsc_select()`, `trsc_workflow()` |
 | Evaluation identification | `trsc_evaluation_set()`, `trsc_evaluation_width()`, `trsc_point_identified()` |
 | Dynamic identification | `trsc_counterfactual_set()`, `trsc_support()`, `trsc_bounds()`, `trsc_min_radius()`, `trsc_sensitivity()` |
 | Structural measurements | `trsc_auxiliary_refine()` |
@@ -36,6 +36,11 @@ terminal triangular readouts and tie order are frozen before validation.
 The local-linear validation score targets the cutoff. There is no final
 full-sample refit. `trsc_split()` remains an earlier expanding-window utility;
 `trsc_sample_plan()` supplies the canonical role separation.
+
+For a q=2 boundary, `trsc_boundary_readouts(fit, h)` constructs the current
+and preceding predictive readouts from the same frozen fit, using the same
+triangular taper shifted back exactly one fitted date. It does not supply a
+fitting-to-causal-cutoff transfer bound or validate structural q=2.
 
 The forward factor `geometry$B = X/sqrt(N)` retains all supplied directions.
 Numerical rank tolerance is diagnostic only. Its row dimension is N, rather
