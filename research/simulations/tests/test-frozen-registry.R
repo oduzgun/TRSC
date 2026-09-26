@@ -74,4 +74,37 @@ required_decomp<-c("direction","population_width","plugin_width",
 stopifnot(is.data.frame(pm$decomposition),
           all(required_decomp%in%names(pm$decomposition)))
 
+
+stopifnot("integrated_profile_loss"%in%names(pm$summary),
+          is.finite(pm$summary$integrated_profile_loss))
+
+# Frozen summaries retain attempted/failed denominators and Monte Carlo
+# uncertainty instead of silently dropping failed attempts.
+mini<-f;pc$cell_id<-"fixture-post";pc$cell_index<-1L;pc$repetitions<-2L;mini$cells<-pc
+m1<-trsc_sim_frozen_attempt(pc,1,mini);m1$status<-"success";m1$error_class<-NA_character_;m1$message<-NA_character_;m1$warnings<-"";m1$runtime_seconds<-0;m1$rng_kind<-"fixture"
+m2<-trsc_sim_frozen_attempt(pc,2,mini);m2$status<-"error";m2$error_class<-"fixture_error";m2$message<-"deliberate";m2$warnings<-"";m2$runtime_seconds<-0;m2$rng_kind<-"fixture"
+ma<-do.call(rbind,lapply(list(m1,m2),function(x)as.data.frame(x,stringsAsFactors=FALSE)))
+mc<-list(records=list(list(attempt=m1,result=list(kind="post",metrics=pm)),
+                      list(attempt=m2,result=NULL)),attempts=ma,
+         registry_hash=mini$registry_hash)
+mr<-trsc_sim_frozen_report(mc,mini)
+aa<-mr$attempt_accounting[mr$attempt_accounting$cell_id=="fixture-post",]
+stopifnot(aa$attempted==2L,aa$successful==1L,aa$failed==1L,aa$failure_rate==.5)
+nr<-mr$post_numeric[mr$post_numeric$cell_id=="fixture-post"&
+                    mr$post_numeric$metric=="integrated_profile_loss",]
+stopifnot(nrow(nr)==1L,nr$n_attempted==2L,nr$n_failed==1L,nr$n==1L,
+          all(c("mean","sd","mcse","empirical_q025","empirical_q975")%in%names(nr)))
+cr<-mr$coverage[mr$coverage$cell_id=="fixture-post"&
+                mr$coverage$metric=="whole_set_sufficient_event",]
+stopifnot(nrow(cr)==1L,cr$n_attempted==2L,cr$n_failed==1L,cr$n_evaluated==1L,
+          all(c("mc_lower","mc_upper","coverage_target")%in%names(cr)))
+
+# Incompatible shard provenance must be rejected, not combined.
+tmp2<-tempfile("combine-incompatible-");dir.create(tmp2)
+bad_attempt<-m1;bad_attempt$registry_hash<-"wrong-registry"
+trsc_sim_atomic_save(list(attempt=bad_attempt,result=NULL),trsc_sim_result_path(tmp2,bad_attempt))
+ie<-tryCatch({trsc_sim_combine_frozen(tmp2,mini,ma);NULL},error=identity)
+stopifnot(inherits(ie,"error"),grepl("registry",conditionMessage(ie),ignore.case=TRUE))
+unlink(tmp2,recursive=TRUE)
+
 cat("Frozen Stage-A registry and orchestration contracts passed.\n")
