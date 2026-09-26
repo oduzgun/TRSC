@@ -12,7 +12,7 @@ The nested predictive libraries are frozen in `FROZEN_CANDIDATE_LIBRARIES.csv`: 
 
 ## Frozen registries
 
-- `FROZEN_CELL_REGISTRY.csv`: SHA-256 `f1ddc2aba196641a04874ac75eadcfd621e45d72bb0902699f7bf8afd60dde20`; 179 cells; 73,400 attempts.
+- `FROZEN_CELL_REGISTRY.csv`: SHA-256 `b69df091e331c6d93e786bf0e6300babb4a5d4b76e5cf6f09c3c242d16a51480`; 179 cells; 73,400 attempts.
 - `FROZEN_CANDIDATE_LIBRARIES.csv`: SHA-256 `8f0a00b3ce3aef2ac294ab9946f2701f7977730ab9fa09038df0cb51e80f1be5`; 41 ordered membership rows.
 - `FROZEN_DEPLOYMENT_EPSILON.csv`: SHA-256 `e5513f30939373cb98edfff718d2e74805095d97635741f407baf3abd029c017`; 5 reporting multipliers.
 
