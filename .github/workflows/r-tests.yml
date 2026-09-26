@@ -56,6 +56,7 @@ jobs:
         run: |
           Rscript --vanilla research/simulations/tests/test-smoke.R
           Rscript --vanilla research/simulations/tests/test-post-smoke.R
+          Rscript --vanilla research/simulations/tests/test-frozen-registry.R
 
       - name: Check package
         run: |
