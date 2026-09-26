@@ -146,6 +146,7 @@ trsc_sim_post_feasible <- function(observed, protocol) {
                                    previous=previous)
   list(layer="feasible_maintained_bounds",workflow=workflow,center=center,
        previous=previous,plugin=plugin,outer=outer,protocol=protocol,
+       candidate_certificates=certificates,geometry_certificate=gc,
        runtime=proc.time()[[3]]-start,
        center_convention="explicit simplex projection; supplied envelopes apply to recorded centers")
 }
