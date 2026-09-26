@@ -21,7 +21,7 @@ cell<-splitv(value("--cell"));panel<-splitv(value("--panel"));si<-value("--shard
 if(xor(is.null(si),is.null(sn)))stop("Shard index/count must be supplied together.")
 cells<-trsc_sim_select_cells(f,cell,panel,if(is.null(si))NULL else as.integer(si),if(is.null(sn))NULL else as.integer(sn))
 expected<-trsc_sim_attempt_table(f);expected<-expected[expected$cell_id%in%cells$cell_id,,drop=FALSE]
-if(has("--combine")){z<-trsc_sim_combine_frozen(out,f,expected);dir.create(out,recursive=TRUE,showWarnings=FALSE);write.csv(z$attempts,file.path(out,"combined_attempts.csv"),row.names=FALSE);saveRDS(z$records,file.path(out,"combined_records.rds"));cat("Combined",nrow(z$attempts),"declared attempts.\n");quit(status=0)}
+if(has("--combine")){z<-trsc_sim_combine_frozen(out,f,expected);report<-trsc_sim_frozen_report(z,f);dir.create(out,recursive=TRUE,showWarnings=FALSE);write.csv(z$attempts,file.path(out,"combined_attempts.csv"),row.names=FALSE);saveRDS(z$records,file.path(out,"combined_records.rds"));write.csv(report$attempt_accounting,file.path(out,"attempt_accounting.csv"),row.names=FALSE);write.csv(report$pre_selected_numeric,file.path(out,"pre_selected_numeric.csv"),row.names=FALSE);write.csv(report$post_numeric,file.path(out,"post_numeric.csv"),row.names=FALSE);write.csv(report$coverage,file.path(out,"coverage.csv"),row.names=FALSE);saveRDS(report,file.path(out,"frozen_report.rds"));cat("Combined",nrow(z$attempts),"declared attempts and wrote frozen report bundle.\n");quit(status=0)}
 if(!nrow(cells))stop("No frozen cells selected.")
 cache<-file.path(out,"_fit_cache")
 for(i in seq_len(nrow(cells)))for(r in seq_len(as.integer(cells$repetitions[i])))trsc_sim_run_frozen_attempt(cells[i,,drop=FALSE],r,f,out,cache)
