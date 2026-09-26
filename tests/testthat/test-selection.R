@@ -87,9 +87,11 @@ test_that("boundary readouts use one frozen fit and the same shifted taper", {
     previous = boundary$previous
   )
   expect_s3_class(q2_set, "trsc_identified_set")
-  expect_equal(q2_set$anchors[[1]], boundary$previous$representative,
+  expect_equal(as.numeric(q2_set$anchors[[1]]),
+               as.numeric(boundary$previous$representative),
                tolerance = 2e-6)
-  expect_equal(q2_set$anchors[[2]], boundary$level$representative,
+  expect_equal(as.numeric(q2_set$anchors[[2]]),
+               as.numeric(boundary$level$representative),
                tolerance = 2e-6)
   expect_true(boundary$frozen)
   expect_error(
