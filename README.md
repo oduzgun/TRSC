@@ -4,10 +4,54 @@ TRSC estimates evolving **predictive relationships**. Predictive profiles are
 primary; donor weights are coordinate representations that can be nonunique.
 
 The package implements the frozen split–fit–freeze–validate procedure and
-post-treatment functions that compute **assumption-indexed identified sets
-and honest outer confidence regions under explicitly supplied continuation,
-bridge, and numerical-certificate conditions**. It does not automatically
+post-treatment functions for **assumption-indexed identified sets and honest
+outer confidence regions**. These require explicit continuation and
+causal-bridge assumptions; confidence regions additionally require numerical
+error bounds and probability conditions. The package does not automatically
 identify a causal effect.
+
+## Public release and paper code
+
+[Version 0.1.0](https://github.com/oduzgun/TRSC/releases/tag/v0.1.0) is the
+first public software release. Its computational files are unchanged from
+[`06e7c015f3579c69cdfb21569ea5689982524655`](https://github.com/oduzgun/TRSC/tree/06e7c015f3579c69cdfb21569ea5689982524655),
+the code snapshot referenced by the manuscript. The release updates the
+public documentation and citation metadata. Use the version tag or the
+fixed commit when recording the code used in an analysis; `main` can change.
+
+The repository contains the R package, examples, frozen simulation design
+and runners, and the California application with retained audit outputs.
+It is a **software release, not the complete paper replication archive**:
+the full 73,400-attempt Monte Carlo outputs, separate 8,000-attempt inference
+validation experiment, and post-freeze numerical recovery audit are not
+included in this release. The California output manifest records the
+provenance and limitations of its retained results.
+
+## Installation
+
+Install the released version from R:
+
+```r
+install.packages("remotes")  # once, if needed
+remotes::install_github("oduzgun/TRSC@v0.1.0", build_vignettes = FALSE)
+library(TRSC)
+```
+
+The package depends on `ECOSolveR`, `gmp`, `Matrix` and `osqp`; installing
+dependencies from source may require a compiler and system libraries.
+The research scripts and California files belong to the repository checkout,
+rather than the installed package API.
+
+## Where to start
+
+| Task | Entry point |
+|---|---|
+| Learn the pre-treatment workflow | [Introduction](vignettes/trsc-introduction.Rmd) and [executable example](inst/examples/pre-treatment-workflow.R) |
+| Compute post-treatment identified sets | [Guide](vignettes/post-treatment-identification.Rmd) and [example](inst/examples/post-treatment-identification.R) |
+| Understand the inputs required for inference | [Inference guide](vignettes/honest-inference.Rmd) and [example](inst/examples/honest-inference.R) |
+| Inspect the frozen simulation design | [Simulation guide](research/simulations/README.md), [cell registry](research/simulations/FROZEN_CELL_REGISTRY.csv) and [runner](research/simulations/run-frozen-study.R) |
+| Inspect the California application | [Application guide](analysis/california/README.md) and [audited output manifest](analysis/california/output/run_manifest_completed_audit.json) |
+| Cite or reuse the software | [Citation metadata](CITATION.cff) and [MIT license](LICENSE.md) |
 
 ## Workflow and API
 
@@ -124,21 +168,40 @@ Rscript inst/examples/post-treatment-identification.R
 Rscript inst/examples/honest-inference.R
 ```
 
-## Verification and simulation readiness
+## Verification and research materials
 
 The test suite checks geometry, frozen selection, analytic identification
 fixtures, same-witness outer inclusion, numerical certificates and twenty
 software stress cases. GitHub Actions run standalone contracts, package
 tests, examples, all vignettes, research smoke checks and R CMD check.
 
+The computational base passed the
+[R validation run for commit `06e7c015f357`](https://github.com/oduzgun/TRSC/actions/runs/36255724140),
+including package tests, vignette builds, executable examples and
+`R CMD check`. These checks concern software execution and do not rerun the
+paper's full Monte Carlo study.
+
 `research/simulations/` retains the existing thirteen pre-treatment scenarios,
 six benchmark families and failure/reporting machinery. A separate
 post-treatment extension separates observable inputs from truth, and a
 [predeclared simulation design](research/simulations/SIMULATION_DESIGN.md)
-covers identification, inference and out-of-theory stress. Smoke runs validate
-software only. No large Monte Carlo findings or empirical application are
-claimed.
+covers identification, inference and out-of-theory stress. The runners and
+frozen registries are included; the full Monte Carlo output archive is not.
+
+`analysis/california/` contains the Proposition 99 analysis scripts,
+configuration, audited tables, solver summaries and figures. Its regions
+are plug-in identified sets, not sampling confidence regions. Read the
+application's output manifest before interpreting the provenance of the
+retained results.
 
 The [paper-code crosswalk](inst/developer/paper-code-crosswalk.md) records
 the frozen results, helpers and tests. Earlier development scripts remain
 excluded under `research/legacy/`; they are not loaded by the package.
+
+## Citation and license
+
+Onur Düzgün (2026). *TRSC: Temporally Regularized Synthetic Controls*,
+version 0.1.0. [GitHub release](https://github.com/oduzgun/TRSC/releases/tag/v0.1.0).
+Machine-readable metadata are provided in [CITATION.cff](CITATION.cff).
+
+The software is distributed under the [MIT license](LICENSE.md).

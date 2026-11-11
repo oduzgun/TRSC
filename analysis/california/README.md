@@ -9,10 +9,18 @@ Run the numbered scripts in order from the repository root. The scripts write
 machine-readable outputs and never use California's post-treatment treated
 outcomes for candidate, split, radius or certificate selection.
 
-In the present workspace the R runtime is unavailable. Package-independent
-data, static-SCM and geometry stages are executed by the accompanying Python
-runner, while TRSC-dependent stages retain an explicit `missing_R_runtime`
-status until run in an R-capable environment.
+The committed `output/` directory contains retained audited tables, solver
+summaries and figures. The [completed audit manifest](output/run_manifest_completed_audit.json)
+and [execution provenance](output/execution_provenance.csv) describe their
+recorded R execution, manual pre-run patches and remaining provenance
+limitations. The exact executed package working-tree hash was not retained.
+An earlier Python-only status is preserved as historical evidence in the
+audit records; it is not the current status of the retained results.
+
+These outputs are plug-in identification results. The application does not
+supply the additional statistical and transfer bounds needed for a nominal
+confidence-region interpretation. This public release preserves the outputs
+without rerunning or replacing them.
 
 For the complete package-native run:
 

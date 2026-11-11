@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, cite this version and its GitHub release."
+type: software
+title: "TRSC: Temporally Regularized Synthetic Controls"
+authors:
+  - family-names: "Düzgün"
+    given-names: "Onur"
+    orcid: "https://orcid.org/0009-0007-6288-6141"
+version: "0.1.0"
+date-released: "2026-11-11"
+repository-code: "https://github.com/oduzgun/TRSC"
+url: "https://github.com/oduzgun/TRSC/releases/tag/v0.1.0"
+license: MIT
